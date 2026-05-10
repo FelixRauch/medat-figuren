@@ -235,8 +235,7 @@ Includes:
 
 ## Key principle:
 
-> AXIS A ≠ AXIS B
-> They are independent and must be tuned separately.
+> AXIS A ≠ AXIS B. They are independent and must be tuned separately.
 
 ---
 

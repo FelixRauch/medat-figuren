@@ -1,0 +1,747 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0D0D7BE1F7E0A750A70CEB8F /* MedATFigurenApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EB2028FE9C4723F3A195A98 /* MedATFigurenApp.swift */; };
+		0F36ABC89F6B5CB9B0CACAE0 /* ProgressChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8538B7B95413659170319DD2 /* ProgressChartView.swift */; };
+		1AD969FB78110FAC14C92328 /* DifficultyLevel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71C74171E4B8C2764711A452 /* DifficultyLevel.swift */; };
+		1CB8D252791BFDC5E00E25C5 /* DraggablePieceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FEFE94CB5EAAB6E191ADC6 /* DraggablePieceView.swift */; };
+		22C125778F351A74C278DE61 /* MultipleChoiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63F86E1C5CDC392EA641BA4D /* MultipleChoiceView.swift */; };
+		2F651BDA2B209A01702DFF82 /* PuzzleFeedbackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3962E86C8B5A5288FD0DE9 /* PuzzleFeedbackView.swift */; };
+		3141833703D7FF457BD981EE /* TrainingContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42EF9A4103E84F5B72B3FDB8 /* TrainingContainerView.swift */; };
+		346C972E38A5EF867B574B25 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28B9506D2E5A10C487A6EB08 /* MainTabView.swift */; };
+		373637CE970A25FADEABBFE7 /* UserProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2715855D69C61F8759985E /* UserProgress.swift */; };
+		37A6826AB865E7ED8291A4C7 /* PhaseProgressionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B096C05EDD826BA3DB424F17 /* PhaseProgressionManager.swift */; };
+		386AED2F7D4C5AEA9AFD8E0D /* PhaseIntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFCA7AB4615CAA0FF6466386 /* PhaseIntroView.swift */; };
+		3EFB10DA2F89FE4DFB3D70F8 /* PuzzleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22DA26D326B273A94A0854C3 /* PuzzleViewModel.swift */; };
+		4B29DCDA183B2D73C38C08A2 /* NormalizedPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B372B77F001AC256C0A2629 /* NormalizedPoint.swift */; };
+		4BCEFADF07548AC83DFF477B /* ShapeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0AE60701FA8CF570D3354B1 /* ShapeLibrary.swift */; };
+		4D9F190A010EABD00F5ECA63 /* PhaseIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AD26ECC12DA4008BB200951 /* PhaseIndicatorView.swift */; };
+		4E01F8DC55A4B6B48BF7A328 /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C2A2D59AB41568FF348085 /* AppEnvironment.swift */; };
+		70E6DDE00332AAF084A585EA /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFBB6DD2821BBD40EBB8B3C7 /* SettingsView.swift */; };
+		72F9B506B936B22283B16852 /* PredictionStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05B69526857EA337EB1D56E /* PredictionStepView.swift */; };
+		85B76928C72834A72B14F2B0 /* PuzzleResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE4037E5F3DA0D6CFA139062 /* PuzzleResult.swift */; };
+		922F68B64FC28691A3973AD0 /* CognitiveModelEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DEB7C151EF286D55093238A /* CognitiveModelEngine.swift */; };
+		94E49E7D4204FA3EDC7E0C80 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E50BEF2057821A819FC770D /* DashboardViewModel.swift */; };
+		A5B0909034EF366E74653237 /* PuzzleGeneratorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5D57F7995EEB36762178D65 /* PuzzleGeneratorTests.swift */; };
+		AA9E6950F5EE2532394C2D38 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 049A62CE7AB01A79986211C7 /* Foundation.framework */; };
+		AFC715B0AF8FF135328F49A4 /* AssemblyCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ED29913B315CE9AFF456CF6 /* AssemblyCanvasView.swift */; };
+		B0920D29D4F407AB5DA369E5 /* ShapePathView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 792DAE62C9BC6F18365BBA23 /* ShapePathView.swift */; };
+		B37E3965FD310E40259E4F1D /* PuzzleGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51D90778BB24CC9BFCBD92D2 /* PuzzleGenerator.swift */; };
+		B5EC7DF862A9153E43648C7B /* UserCognitiveModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F2C6DA3818BE93FDDC18734 /* UserCognitiveModel.swift */; };
+		B79D0ED46876F670CDC58412 /* PhaseTransitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 082A93AF3760D6A6012600B0 /* PhaseTransitionView.swift */; };
+		BCCD108A66831DD462F61AD5 /* TimerBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7AD04DEC6579CEB1919721E /* TimerBarView.swift */; };
+		C52783B9007BDBF357422D6C /* CognitiveModelEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4D3F3A89CF81B416A80899E /* CognitiveModelEngineTests.swift */; };
+		CB288461694E2FB5006A9518 /* AdaptiveDifficultyEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D35CDD93ECA99E130F3AA9 /* AdaptiveDifficultyEngineTests.swift */; };
+		CDAAB52B9FAB0659C094E5A6 /* PhaseProgressionManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27402E31D2636209AFD4A880 /* PhaseProgressionManagerTests.swift */; };
+		E643BB4B34CF5902DF0382EE /* PersistenceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CE560B7A72789D6F1B90957 /* PersistenceManager.swift */; };
+		EA30FB6AE7EC037BB8656E80 /* AdaptiveDifficultyEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1691F13C62D8A7B29A18CE05 /* AdaptiveDifficultyEngine.swift */; };
+		EB628A50D39DEF5FED3A6C7D /* Puzzle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30C070EE5622A08DD8A985C6 /* Puzzle.swift */; };
+		EBDDC0C81B509D8CC79DA93F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 049A62CE7AB01A79986211C7 /* Foundation.framework */; };
+		F1C28E72AF2D690A7BC0918A /* LearningPhase.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8314237EA30A2B49A58114 /* LearningPhase.swift */; };
+		F59C0325B35DED97D03D9C11 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E542796B3E4BFBDA206A98AA /* RootView.swift */; };
+		FA8CEB5F6039C2557AF92A6E /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 64B7242B0142531A9DFCC88A /* XCTest.framework */; };
+		FB8AD713B203EEF5D4D38162 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6788FED43DDF8EBD549974D8 /* DashboardView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		AA275C2958CBA498E6EDF7D6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F26C2124682CC0E9E1B4596C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 18A98E04436F6EF3A98CC907;
+			remoteInfo = MedATFiguren;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		049A62CE7AB01A79986211C7 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		06FEFE94CB5EAAB6E191ADC6 /* DraggablePieceView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DraggablePieceView.swift; sourceTree = "<group>"; };
+		082A93AF3760D6A6012600B0 /* PhaseTransitionView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhaseTransitionView.swift; sourceTree = "<group>"; };
+		1691F13C62D8A7B29A18CE05 /* AdaptiveDifficultyEngine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AdaptiveDifficultyEngine.swift; sourceTree = "<group>"; };
+		22DA26D326B273A94A0854C3 /* PuzzleViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PuzzleViewModel.swift; sourceTree = "<group>"; };
+		27402E31D2636209AFD4A880 /* PhaseProgressionManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhaseProgressionManagerTests.swift; sourceTree = "<group>"; };
+		28B9506D2E5A10C487A6EB08 /* MainTabView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		30C070EE5622A08DD8A985C6 /* Puzzle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Puzzle.swift; sourceTree = "<group>"; };
+		3ED29913B315CE9AFF456CF6 /* AssemblyCanvasView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AssemblyCanvasView.swift; sourceTree = "<group>"; };
+		42EF9A4103E84F5B72B3FDB8 /* TrainingContainerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TrainingContainerView.swift; sourceTree = "<group>"; };
+		51D90778BB24CC9BFCBD92D2 /* PuzzleGenerator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PuzzleGenerator.swift; sourceTree = "<group>"; };
+		5DEB7C151EF286D55093238A /* CognitiveModelEngine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CognitiveModelEngine.swift; sourceTree = "<group>"; };
+		63F86E1C5CDC392EA641BA4D /* MultipleChoiceView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MultipleChoiceView.swift; sourceTree = "<group>"; };
+		64B7242B0142531A9DFCC88A /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		6788FED43DDF8EBD549974D8 /* DashboardView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		6CE560B7A72789D6F1B90957 /* PersistenceManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PersistenceManager.swift; sourceTree = "<group>"; };
+		6E50BEF2057821A819FC770D /* DashboardViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
+		71C74171E4B8C2764711A452 /* DifficultyLevel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DifficultyLevel.swift; sourceTree = "<group>"; };
+		792DAE62C9BC6F18365BBA23 /* ShapePathView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShapePathView.swift; sourceTree = "<group>"; };
+		8538B7B95413659170319DD2 /* ProgressChartView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProgressChartView.swift; sourceTree = "<group>"; };
+		8AD26ECC12DA4008BB200951 /* PhaseIndicatorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhaseIndicatorView.swift; sourceTree = "<group>"; };
+		8B372B77F001AC256C0A2629 /* NormalizedPoint.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NormalizedPoint.swift; sourceTree = "<group>"; };
+		8F2C6DA3818BE93FDDC18734 /* UserCognitiveModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UserCognitiveModel.swift; sourceTree = "<group>"; };
+		9EB2028FE9C4723F3A195A98 /* MedATFigurenApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MedATFigurenApp.swift; sourceTree = "<group>"; };
+		9F3962E86C8B5A5288FD0DE9 /* PuzzleFeedbackView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PuzzleFeedbackView.swift; sourceTree = "<group>"; };
+		A0C2A2D59AB41568FF348085 /* AppEnvironment.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
+		A4D3F3A89CF81B416A80899E /* CognitiveModelEngineTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CognitiveModelEngineTests.swift; sourceTree = "<group>"; };
+		A5D57F7995EEB36762178D65 /* PuzzleGeneratorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PuzzleGeneratorTests.swift; sourceTree = "<group>"; };
+		B05B69526857EA337EB1D56E /* PredictionStepView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PredictionStepView.swift; sourceTree = "<group>"; };
+		B096C05EDD826BA3DB424F17 /* PhaseProgressionManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhaseProgressionManager.swift; sourceTree = "<group>"; };
+		BE4037E5F3DA0D6CFA139062 /* PuzzleResult.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PuzzleResult.swift; sourceTree = "<group>"; };
+		BFBB6DD2821BBD40EBB8B3C7 /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		C0AE60701FA8CF570D3354B1 /* ShapeLibrary.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShapeLibrary.swift; sourceTree = "<group>"; };
+		D8D35CDD93ECA99E130F3AA9 /* AdaptiveDifficultyEngineTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AdaptiveDifficultyEngineTests.swift; sourceTree = "<group>"; };
+		E542796B3E4BFBDA206A98AA /* RootView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		E69A3C8206ABBA4DA1B697F1 /* MedATFigurenTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MedATFigurenTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EA8314237EA30A2B49A58114 /* LearningPhase.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LearningPhase.swift; sourceTree = "<group>"; };
+		EFCA7AB4615CAA0FF6466386 /* PhaseIntroView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhaseIntroView.swift; sourceTree = "<group>"; };
+		F7AD04DEC6579CEB1919721E /* TimerBarView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TimerBarView.swift; sourceTree = "<group>"; };
+		FA2715855D69C61F8759985E /* UserProgress.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UserProgress.swift; sourceTree = "<group>"; };
+		FAB2B7A91CA0C8D8856293F0 /* MedATFiguren.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = MedATFiguren.app; path = MedATFiguren.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		5B1F3C8844C12AEC85798188 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA9E6950F5EE2532394C2D38 /* Foundation.framework in Frameworks */,
+				FA8CEB5F6039C2557AF92A6E /* XCTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DA71B8A4CC13FDA3D702B9F0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EBDDC0C81B509D8CC79DA93F /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0003AA03C3CAA34A794C319D /* Phase1_2 */ = {
+			isa = PBXGroup;
+			children = (
+				3ED29913B315CE9AFF456CF6 /* AssemblyCanvasView.swift */,
+				06FEFE94CB5EAAB6E191ADC6 /* DraggablePieceView.swift */,
+			);
+			name = Phase1_2;
+			sourceTree = "<group>";
+		};
+		0015C902E7B21E47256D6CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FAB2B7A91CA0C8D8856293F0 /* MedATFiguren.app */,
+				E69A3C8206ABBA4DA1B697F1 /* MedATFigurenTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0ACDBC5BB5C0B3C5F363B625 /* Dashboard */ = {
+			isa = PBXGroup;
+			children = (
+				6788FED43DDF8EBD549974D8 /* DashboardView.swift */,
+				8538B7B95413659170319DD2 /* ProgressChartView.swift */,
+			);
+			name = Dashboard;
+			sourceTree = "<group>";
+		};
+		0B522717406BA86A0CA9959C /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				9F3962E86C8B5A5288FD0DE9 /* PuzzleFeedbackView.swift */,
+			);
+			name = Shared;
+			sourceTree = "<group>";
+		};
+		16E0B91031E31629BBFEA726 /* Phase3 */ = {
+			isa = PBXGroup;
+			children = (
+				B05B69526857EA337EB1D56E /* PredictionStepView.swift */,
+			);
+			name = Phase3;
+			sourceTree = "<group>";
+		};
+		22297E872D71C4DDEBA30A66 /* Phase */ = {
+			isa = PBXGroup;
+			children = (
+				EFCA7AB4615CAA0FF6466386 /* PhaseIntroView.swift */,
+				082A93AF3760D6A6012600B0 /* PhaseTransitionView.swift */,
+			);
+			name = Phase;
+			sourceTree = "<group>";
+		};
+		276ADAA4A6DB5505B1E8F69B /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				049A62CE7AB01A79986211C7 /* Foundation.framework */,
+				64B7242B0142531A9DFCC88A /* XCTest.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		49B91F146E7DDD45EB894F9A /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				6E50BEF2057821A819FC770D /* DashboardViewModel.swift */,
+				22DA26D326B273A94A0854C3 /* PuzzleViewModel.swift */,
+			);
+			name = ViewModels;
+			sourceTree = "<group>";
+		};
+		575815DCE3AD7EAF50F3D287 /* Training */ = {
+			isa = PBXGroup;
+			children = (
+				0003AA03C3CAA34A794C319D /* Phase1_2 */,
+				16E0B91031E31629BBFEA726 /* Phase3 */,
+				6688EE39E246DA0A646000EA /* Phase4_5 */,
+				0B522717406BA86A0CA9959C /* Shared */,
+				42EF9A4103E84F5B72B3FDB8 /* TrainingContainerView.swift */,
+			);
+			name = Training;
+			sourceTree = "<group>";
+		};
+		5D4A3A6EA8A1F6FAFA1F3753 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				1691F13C62D8A7B29A18CE05 /* AdaptiveDifficultyEngine.swift */,
+				5DEB7C151EF286D55093238A /* CognitiveModelEngine.swift */,
+				6CE560B7A72789D6F1B90957 /* PersistenceManager.swift */,
+				B096C05EDD826BA3DB424F17 /* PhaseProgressionManager.swift */,
+				51D90778BB24CC9BFCBD92D2 /* PuzzleGenerator.swift */,
+				C0AE60701FA8CF570D3354B1 /* ShapeLibrary.swift */,
+			);
+			name = Services;
+			sourceTree = "<group>";
+		};
+		619A0045B05C6AE6444F3F8B /* MedATFiguren */ = {
+			isa = PBXGroup;
+			children = (
+				DD68B628E4A4F26C5B322C4D /* App */,
+				AA6DCBC8E763EB600267BEB2 /* Models */,
+				5D4A3A6EA8A1F6FAFA1F3753 /* Services */,
+				49B91F146E7DDD45EB894F9A /* ViewModels */,
+				DFBD611051DBA494AFDAA3A4 /* Views */,
+			);
+			name = MedATFiguren;
+			sourceTree = "<group>";
+		};
+		6688EE39E246DA0A646000EA /* Phase4_5 */ = {
+			isa = PBXGroup;
+			children = (
+				63F86E1C5CDC392EA641BA4D /* MultipleChoiceView.swift */,
+			);
+			name = Phase4_5;
+			sourceTree = "<group>";
+		};
+		7705E4340BA07EDE6856843A /* Root */ = {
+			isa = PBXGroup;
+			children = (
+				28B9506D2E5A10C487A6EB08 /* MainTabView.swift */,
+				E542796B3E4BFBDA206A98AA /* RootView.swift */,
+				BFBB6DD2821BBD40EBB8B3C7 /* SettingsView.swift */,
+			);
+			name = Root;
+			sourceTree = "<group>";
+		};
+		7A5AED02E686E57E442A6E44 = {
+			isa = PBXGroup;
+			children = (
+				0015C902E7B21E47256D6CBB /* Products */,
+				D684511FD5F4442095D3DFC8 /* Frameworks */,
+				CC357734335A10F01083DCC5 /* Sources */,
+				9907A369DB8EBBF305489EA5 /* Tests */,
+			);
+			sourceTree = "<group>";
+		};
+		8C5BA62C5D86A91FED00A550 /* MedATFigurenTests */ = {
+			isa = PBXGroup;
+			children = (
+				D8D35CDD93ECA99E130F3AA9 /* AdaptiveDifficultyEngineTests.swift */,
+				A4D3F3A89CF81B416A80899E /* CognitiveModelEngineTests.swift */,
+				27402E31D2636209AFD4A880 /* PhaseProgressionManagerTests.swift */,
+				A5D57F7995EEB36762178D65 /* PuzzleGeneratorTests.swift */,
+			);
+			name = MedATFigurenTests;
+			sourceTree = "<group>";
+		};
+		9907A369DB8EBBF305489EA5 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				8C5BA62C5D86A91FED00A550 /* MedATFigurenTests */,
+			);
+			name = Tests;
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		AA6DCBC8E763EB600267BEB2 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				71C74171E4B8C2764711A452 /* DifficultyLevel.swift */,
+				EA8314237EA30A2B49A58114 /* LearningPhase.swift */,
+				8B372B77F001AC256C0A2629 /* NormalizedPoint.swift */,
+				30C070EE5622A08DD8A985C6 /* Puzzle.swift */,
+				BE4037E5F3DA0D6CFA139062 /* PuzzleResult.swift */,
+				8F2C6DA3818BE93FDDC18734 /* UserCognitiveModel.swift */,
+				FA2715855D69C61F8759985E /* UserProgress.swift */,
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
+		BB1C5CD234CB8CD92112E41A /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				8AD26ECC12DA4008BB200951 /* PhaseIndicatorView.swift */,
+				792DAE62C9BC6F18365BBA23 /* ShapePathView.swift */,
+				F7AD04DEC6579CEB1919721E /* TimerBarView.swift */,
+			);
+			name = Components;
+			sourceTree = "<group>";
+		};
+		CC357734335A10F01083DCC5 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				619A0045B05C6AE6444F3F8B /* MedATFiguren */,
+			);
+			name = Sources;
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		D684511FD5F4442095D3DFC8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				276ADAA4A6DB5505B1E8F69B /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		DD68B628E4A4F26C5B322C4D /* App */ = {
+			isa = PBXGroup;
+			children = (
+				A0C2A2D59AB41568FF348085 /* AppEnvironment.swift */,
+				9EB2028FE9C4723F3A195A98 /* MedATFigurenApp.swift */,
+			);
+			name = App;
+			sourceTree = "<group>";
+		};
+		DFBD611051DBA494AFDAA3A4 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				BB1C5CD234CB8CD92112E41A /* Components */,
+				0ACDBC5BB5C0B3C5F363B625 /* Dashboard */,
+				22297E872D71C4DDEBA30A66 /* Phase */,
+				7705E4340BA07EDE6856843A /* Root */,
+				575815DCE3AD7EAF50F3D287 /* Training */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		02745193F0B189D4C0E69B5F /* MedATFigurenTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C0DDDE4E3977DBA8D1B6F937 /* Build configuration list for PBXNativeTarget "MedATFigurenTests" */;
+			buildPhases = (
+				7F8EB835EA914C1CB397C3FE /* Sources */,
+				5B1F3C8844C12AEC85798188 /* Frameworks */,
+				F7677B2EC6055E44AE5B6742 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8F017E232250942460339F74 /* PBXTargetDependency */,
+			);
+			name = MedATFigurenTests;
+			productName = MedATFigurenTests;
+			productReference = E69A3C8206ABBA4DA1B697F1 /* MedATFigurenTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		18A98E04436F6EF3A98CC907 /* MedATFiguren */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C68F9925728D86DC5CE1A7CC /* Build configuration list for PBXNativeTarget "MedATFiguren" */;
+			buildPhases = (
+				947A08E52BB1872F0A2AAE56 /* Sources */,
+				DA71B8A4CC13FDA3D702B9F0 /* Frameworks */,
+				E6F4E279B4D765B31966ECC4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MedATFiguren;
+			productName = MedATFiguren;
+			productReference = FAB2B7A91CA0C8D8856293F0 /* MedATFiguren.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F26C2124682CC0E9E1B4596C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+			};
+			buildConfigurationList = DCEE36D3457D052DB1932550 /* Build configuration list for PBXProject "MedATFiguren" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 7A5AED02E686E57E442A6E44;
+			minimizedProjectReferenceProxies = 0;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 0015C902E7B21E47256D6CBB /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				18A98E04436F6EF3A98CC907 /* MedATFiguren */,
+				02745193F0B189D4C0E69B5F /* MedATFigurenTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E6F4E279B4D765B31966ECC4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F7677B2EC6055E44AE5B6742 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7F8EB835EA914C1CB397C3FE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CB288461694E2FB5006A9518 /* AdaptiveDifficultyEngineTests.swift in Sources */,
+				C52783B9007BDBF357422D6C /* CognitiveModelEngineTests.swift in Sources */,
+				CDAAB52B9FAB0659C094E5A6 /* PhaseProgressionManagerTests.swift in Sources */,
+				A5B0909034EF366E74653237 /* PuzzleGeneratorTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		947A08E52BB1872F0A2AAE56 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E01F8DC55A4B6B48BF7A328 /* AppEnvironment.swift in Sources */,
+				0D0D7BE1F7E0A750A70CEB8F /* MedATFigurenApp.swift in Sources */,
+				1AD969FB78110FAC14C92328 /* DifficultyLevel.swift in Sources */,
+				F1C28E72AF2D690A7BC0918A /* LearningPhase.swift in Sources */,
+				4B29DCDA183B2D73C38C08A2 /* NormalizedPoint.swift in Sources */,
+				EB628A50D39DEF5FED3A6C7D /* Puzzle.swift in Sources */,
+				85B76928C72834A72B14F2B0 /* PuzzleResult.swift in Sources */,
+				B5EC7DF862A9153E43648C7B /* UserCognitiveModel.swift in Sources */,
+				373637CE970A25FADEABBFE7 /* UserProgress.swift in Sources */,
+				EA30FB6AE7EC037BB8656E80 /* AdaptiveDifficultyEngine.swift in Sources */,
+				922F68B64FC28691A3973AD0 /* CognitiveModelEngine.swift in Sources */,
+				E643BB4B34CF5902DF0382EE /* PersistenceManager.swift in Sources */,
+				37A6826AB865E7ED8291A4C7 /* PhaseProgressionManager.swift in Sources */,
+				B37E3965FD310E40259E4F1D /* PuzzleGenerator.swift in Sources */,
+				4BCEFADF07548AC83DFF477B /* ShapeLibrary.swift in Sources */,
+				94E49E7D4204FA3EDC7E0C80 /* DashboardViewModel.swift in Sources */,
+				3EFB10DA2F89FE4DFB3D70F8 /* PuzzleViewModel.swift in Sources */,
+				4D9F190A010EABD00F5ECA63 /* PhaseIndicatorView.swift in Sources */,
+				B0920D29D4F407AB5DA369E5 /* ShapePathView.swift in Sources */,
+				BCCD108A66831DD462F61AD5 /* TimerBarView.swift in Sources */,
+				FB8AD713B203EEF5D4D38162 /* DashboardView.swift in Sources */,
+				0F36ABC89F6B5CB9B0CACAE0 /* ProgressChartView.swift in Sources */,
+				386AED2F7D4C5AEA9AFD8E0D /* PhaseIntroView.swift in Sources */,
+				B79D0ED46876F670CDC58412 /* PhaseTransitionView.swift in Sources */,
+				346C972E38A5EF867B574B25 /* MainTabView.swift in Sources */,
+				F59C0325B35DED97D03D9C11 /* RootView.swift in Sources */,
+				70E6DDE00332AAF084A585EA /* SettingsView.swift in Sources */,
+				AFC715B0AF8FF135328F49A4 /* AssemblyCanvasView.swift in Sources */,
+				1CB8D252791BFDC5E00E25C5 /* DraggablePieceView.swift in Sources */,
+				72F9B506B936B22283B16852 /* PredictionStepView.swift in Sources */,
+				22C125778F351A74C278DE61 /* MultipleChoiceView.swift in Sources */,
+				2F651BDA2B209A01702DFF82 /* PuzzleFeedbackView.swift in Sources */,
+				3141833703D7FF457BD981EE /* TrainingContainerView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		8F017E232250942460339F74 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = MedATFiguren;
+			target = 18A98E04436F6EF3A98CC907 /* MedATFiguren */;
+			targetProxy = AA275C2958CBA498E6EDF7D6 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0BD2ADD7AA710A3650558EDF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "MedAT Figuren";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.felixrauch.medatfiguren;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		30C9B29FB5B77DE5C80EA0A0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "MedAT Figuren";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.felixrauch.medatfiguren;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		896498E729298620B2204F49 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.felixrauch.medatfigurenTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MedATFiguren.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MedATFiguren";
+			};
+			name = Debug;
+		};
+		9B9B703B84FCB7AA7116380A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B0E9E1A22039035B692F3391 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.felixrauch.medatfigurenTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MedATFiguren.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MedATFiguren";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		E91F935976934D01FBDB4574 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C0DDDE4E3977DBA8D1B6F937 /* Build configuration list for PBXNativeTarget "MedATFigurenTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B0E9E1A22039035B692F3391 /* Release */,
+				896498E729298620B2204F49 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C68F9925728D86DC5CE1A7CC /* Build configuration list for PBXNativeTarget "MedATFiguren" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0BD2ADD7AA710A3650558EDF /* Release */,
+				30C9B29FB5B77DE5C80EA0A0 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DCEE36D3457D052DB1932550 /* Build configuration list for PBXProject "MedATFiguren" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9B9B703B84FCB7AA7116380A /* Debug */,
+				E91F935976934D01FBDB4574 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F26C2124682CC0E9E1B4596C /* Project object */;
+}

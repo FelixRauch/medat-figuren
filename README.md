@@ -1,5 +1,7 @@
 # MedAT Figuren zusammensetzen Training App
 
+Open `MedATFiguren.xcodeproj` in Xcode and run the `MedATFiguren` scheme on an iPad or iPhone simulator. This repository is now set up as an iOS app project rather than a Swift package-only project.
+
 ## Complete Learning System Specification
 
 ---

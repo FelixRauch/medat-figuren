@@ -4,6 +4,8 @@
 
 # Xcode
 *.xcodeproj/
+!MedATFiguren.xcodeproj/
+!MedATFiguren.xcodeproj/**
 xcuserdata/
 DerivedData/
 

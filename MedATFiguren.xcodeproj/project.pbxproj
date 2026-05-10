@@ -21,7 +21,6 @@
 		743517F1D37753A72D7ABBF8 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1156E7EF8DD03400C80CA57 /* RootView.swift */; };
 		79AFABCDF158E15AE901A25A /* MultipleChoiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7278BF15D2E02A2B90DDE228 /* MultipleChoiceView.swift */; };
 		7B51FE65895B6445A15A23B3 /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE343BDFB8DE1827D8C622F2 /* AppEnvironment.swift */; };
-		7F0868CCA1B63ACC85FEC023 /* DraggablePieceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 086DDA54BB94E1431FD0E1EF /* DraggablePieceView.swift */; };
 		80CF9C91344B0CE9C7A8AECE /* ShapePathView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E8D4863D6930CF337212F34 /* ShapePathView.swift */; };
 		886FDD30AF94FFC0EC4BC69E /* PuzzleFeedbackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFC355BDCD028D6D073F67C /* PuzzleFeedbackView.swift */; };
 		8E3C3EDF23099F8494B0A75C /* PhaseTransitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCE4216AEE4337C819C5C43 /* PhaseTransitionView.swift */; };
@@ -61,7 +60,6 @@
 
 /* Begin PBXFileReference section */
 		07AB2DCFADBBF493F7945D33 /* Puzzle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Puzzle.swift; path = Sources/MedATFiguren/Models/Puzzle.swift; sourceTree = "<group>"; };
-		086DDA54BB94E1431FD0E1EF /* DraggablePieceView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DraggablePieceView.swift; path = Sources/MedATFiguren/Views/Training/Phase1_2/DraggablePieceView.swift; sourceTree = "<group>"; };
 		0CD8855388AFCA9F79A51144 /* PuzzleViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PuzzleViewModel.swift; path = Sources/MedATFiguren/ViewModels/PuzzleViewModel.swift; sourceTree = "<group>"; };
 		0EACE3960734DCB135FF7A7E /* CognitiveModelEngineTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CognitiveModelEngineTests.swift; path = Tests/MedATFigurenTests/CognitiveModelEngineTests.swift; sourceTree = "<group>"; };
 		163EB3EB40EBE1F84C86453E /* PhaseProgressionManagerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PhaseProgressionManagerTests.swift; path = Tests/MedATFigurenTests/PhaseProgressionManagerTests.swift; sourceTree = "<group>"; };
@@ -225,7 +223,6 @@
 			isa = PBXGroup;
 			children = (
 				257B070486D99192630F61CE /* AssemblyCanvasView.swift */,
-				086DDA54BB94E1431FD0E1EF /* DraggablePieceView.swift */,
 			);
 			name = Phase1_2;
 			sourceTree = "<group>";
@@ -385,6 +382,15 @@
 			attributes = {
 				LastSwiftUpdateCheck = 1600;
 				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					528FE26F4E103350DBB93FFE = {
+						DevelopmentTeam = 9U36959RBZ;
+						ProvisioningStyle = Automatic;
+					};
+					E45E6A4302AFF924BBC5A330 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
 			};
 			buildConfigurationList = 228DE1D3586DB4BBD31A2D09 /* Build configuration list for PBXProject "MedATFiguren" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -395,8 +401,6 @@
 				Base,
 			);
 			mainGroup = 51493EA582B8B57375D633B1;
-			minimizedProjectReferenceProxies = 0;
-			preferredProjectObjectVersion = 77;
 			productRefGroup = FBCD78CCC62971C9B4AB02C3 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -468,7 +472,6 @@
 				743517F1D37753A72D7ABBF8 /* RootView.swift in Sources */,
 				E351419AB956EF96F658AE0B /* SettingsView.swift in Sources */,
 				9C338C339302B22BFD88DC17 /* AssemblyCanvasView.swift in Sources */,
-				7F0868CCA1B63ACC85FEC023 /* DraggablePieceView.swift in Sources */,
 				2AF0B8392C5196402E870468 /* PredictionStepView.swift in Sources */,
 				79AFABCDF158E15AE901A25A /* MultipleChoiceView.swift in Sources */,
 				886FDD30AF94FFC0EC4BC69E /* PuzzleFeedbackView.swift in Sources */,
@@ -496,6 +499,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9U36959RBZ;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "MedAT Figuren";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -545,6 +549,7 @@
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9U36959RBZ;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "MedAT Figuren";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -617,8 +622,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 5.9;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

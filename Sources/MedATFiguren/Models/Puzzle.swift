@@ -11,17 +11,22 @@ public struct PuzzleShape: Codable, Sendable, Equatable, Identifiable {
     public let outline: [NormalizedPoint]
     /// All available decompositions. Key = number of pieces.
     public let decompositions: [Int: [ShapePiece]]
+    /// When true the shape should be rendered as a perfect circle,
+    /// not as a polygon approximation.
+    public let isCircle: Bool
 
     public init(
         id: String,
         name: String,
         outline: [NormalizedPoint],
-        decompositions: [Int: [ShapePiece]]
+        decompositions: [Int: [ShapePiece]],
+        isCircle: Bool = false
     ) {
         self.id = id
         self.name = name
         self.outline = outline
         self.decompositions = decompositions
+        self.isCircle = isCircle
     }
 
     public var availablePieceCounts: [Int] {
@@ -31,7 +36,7 @@ public struct PuzzleShape: Codable, Sendable, Equatable, Identifiable {
     // MARK: Codable (manual — [Int: [ShapePiece]] keys must be strings in JSON)
 
     enum CodingKeys: String, CodingKey {
-        case id, name, outline, decompositionKeys, decompositionValues
+        case id, name, outline, decompositionKeys, decompositionValues, isCircle
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -39,6 +44,7 @@ public struct PuzzleShape: Codable, Sendable, Equatable, Identifiable {
         try c.encode(id, forKey: .id)
         try c.encode(name, forKey: .name)
         try c.encode(outline, forKey: .outline)
+        try c.encode(isCircle, forKey: .isCircle)
         let sorted = decompositions.sorted { $0.key < $1.key }
         try c.encode(sorted.map(\.key), forKey: .decompositionKeys)
         try c.encode(sorted.map(\.value), forKey: .decompositionValues)
@@ -49,6 +55,7 @@ public struct PuzzleShape: Codable, Sendable, Equatable, Identifiable {
         id = try c.decode(String.self, forKey: .id)
         name = try c.decode(String.self, forKey: .name)
         outline = try c.decode([NormalizedPoint].self, forKey: .outline)
+        isCircle = (try? c.decode(Bool.self, forKey: .isCircle)) ?? false
         let keys = try c.decode([Int].self, forKey: .decompositionKeys)
         let values = try c.decode([[ShapePiece]].self, forKey: .decompositionValues)
         decompositions = Dictionary(uniqueKeysWithValues: zip(keys, values))

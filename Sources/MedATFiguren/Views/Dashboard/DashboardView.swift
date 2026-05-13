@@ -11,194 +11,131 @@ public struct DashboardView: View {
     public var body: some View {
         NavigationStack {
             Group {
-                if let vm {
-                    dashboardContent(vm: vm)
-                } else {
-                    ProgressView()
-                        .onAppear { vm = DashboardViewModel(env: env) }
-                }
+                if let vm { content(vm: vm) }
+                else { ProgressView().task { vm = DashboardViewModel(env: env) } }
             }
             .navigationTitle("Progress")
-            .navigationBarTitleDisplayMode(.large)
         }
     }
 
     @ViewBuilder
-    private func dashboardContent(vm: DashboardViewModel) -> some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                summaryGrid(vm: vm)
-                phaseSection(vm: vm)
-                adaptiveSection(vm: vm)
-                recentSection(vm: vm)
+    private func content(vm: DashboardViewModel) -> some View {
+        List {
+            // ── Stats grid ─────────────────────────────────────────
+            Section {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                    MiniStatCard("Puzzles",  value: "\(vm.totalAttempted)",            icon: "puzzlepiece.fill", tint: .indigo)
+                    MiniStatCard("Accuracy", value: "\(Int(vm.overallAccuracy * 100))%", icon: "target",           tint: .green)
+                    MiniStatCard("Sessions", value: "\(vm.totalSessions)",             icon: "clock.fill",       tint: .orange)
+                    MiniStatCard("Phase",    value: "\(vm.currentPhase.rawValue) / 5", icon: "flag.fill",        tint: .purple)
+                }
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+                .padding(.vertical, 4)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 20)
-        }
-        .background(Color(.systemGroupedBackground))
-    }
 
-    // MARK: - Summary grid
-
-    private func summaryGrid(vm: DashboardViewModel) -> some View {
-        LazyVGrid(
-            columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)],
-            spacing: 12
-        ) {
-            StatCard(title: "Puzzles", value: "\(vm.totalAttempted)",
-                     icon: "puzzlepiece.fill", color: .indigo)
-            StatCard(title: "Accuracy", value: "\(Int(vm.overallAccuracy * 100))%",
-                     icon: "target", color: .green)
-            StatCard(title: "Sessions", value: "\(vm.totalSessions)",
-                     icon: "clock.fill", color: .orange)
-            StatCard(title: "Phase", value: "\(vm.currentPhase.rawValue) / 5",
-                     icon: "flag.fill", color: .purple)
-        }
-    }
-
-    // MARK: - Phase section
-
-    private func phaseSection(vm: DashboardViewModel) -> some View {
-        SectionCard(title: "Phase Progress", icon: "chart.bar.fill") {
-            VStack(spacing: 14) {
+            // ── Phase progress ─────────────────────────────────────
+            Section("Phase Progress") {
                 ForEach(vm.phaseBreakdown) { stats in
-                    PhaseProgressRow(stats: stats)
+                    PhaseRow(stats: stats)
+                }
+            }
+
+            // ── Adaptive model ─────────────────────────────────────
+            Section("Adaptive Model") {
+                if vm.isCalibrated {
+                    ThresholdRow(label: "Engagement Floor",      value: vm.engagementFloor,        tint: .orange,
+                                 detail: "Below this → difficulty reduction")
+                    ThresholdRow(label: "Progression Threshold", value: vm.progressionThreshold,   tint: .indigo,
+                                 detail: "Above this → phase advancement")
+                } else {
+                    Label {
+                        Text("Calibrating… \(env.cognitiveModel.puzzlesAttemptedForCalibration)/\(UserCognitiveModel.calibrationPuzzleCount) puzzles")
+                            .foregroundStyle(.secondary)
+                    } icon: {
+                        ProgressView().controlSize(.small)
+                    }
+                }
+            }
+
+            // ── Recent results ─────────────────────────────────────
+            Section("Recent Results") {
+                if vm.recentResults.isEmpty {
+                    ContentUnavailableView("No puzzles yet",
+                        systemImage: "puzzlepiece",
+                        description: Text("Complete your first puzzle to see results."))
+                        .listRowBackground(Color.clear)
+                } else {
+                    ProgressChartView(results: vm.recentResults)
+                        .frame(height: 110)
+                        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                 }
             }
         }
-    }
-
-    // MARK: - Adaptive model section
-
-    private func adaptiveSection(vm: DashboardViewModel) -> some View {
-        SectionCard(title: "Adaptive Model", icon: "brain.head.profile") {
-            if vm.isCalibrated {
-                VStack(spacing: 14) {
-                    ThresholdRow(
-                        label: "Engagement Floor",
-                        value: vm.engagementFloor,
-                        color: .orange,
-                        tooltip: "Below this triggers difficulty reduction."
-                    )
-                    Divider()
-                    ThresholdRow(
-                        label: "Progression Threshold",
-                        value: vm.progressionThreshold,
-                        color: .indigo,
-                        tooltip: "Above this triggers phase advancement."
-                    )
-                }
-            } else {
-                HStack(spacing: 12) {
-                    ProgressView()
-                    Text("Calibrating… \(env.cognitiveModel.puzzlesAttemptedForCalibration)/\(UserCognitiveModel.calibrationPuzzleCount) puzzles")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-        }
-    }
-
-    // MARK: - Recent results section
-
-    private func recentSection(vm: DashboardViewModel) -> some View {
-        SectionCard(title: "Recent Results", icon: "chart.line.uptrend.xyaxis") {
-            if vm.recentResults.isEmpty {
-                ContentUnavailableView {
-                    Label("No puzzles yet", systemImage: "puzzlepiece")
-                } description: {
-                    Text("Complete your first puzzle to see results here.")
-                }
-                .frame(height: 100)
-            } else {
-                ProgressChartView(results: vm.recentResults)
-                    .frame(height: 120)
-            }
-        }
+        .listStyle(.insetGrouped)
     }
 }
 
-// MARK: - SectionCard
+// MARK: - MiniStatCard
 
-private struct SectionCard<Content: View>: View {
-    let title: String
-    let icon: String
-    @ViewBuilder let content: Content
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Label(title, systemImage: icon)
-                .font(.headline)
-                .foregroundStyle(.primary)
-            content
-        }
-        .padding(16)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 16))
-    }
-}
-
-// MARK: - StatCard
-
-private struct StatCard: View {
+private struct MiniStatCard: View {
     let title: String
     let value: String
     let icon: String
-    let color: Color
+    let tint: Color
+
+    init(_ title: String, value: String, icon: String, tint: Color) {
+        self.title = title; self.value = value; self.icon = icon; self.tint = tint
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 8) {
             Image(systemName: icon)
-                .font(.title3)
-                .foregroundStyle(color)
-                .frame(width: 36, height: 36)
-                .background(color.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
-            Spacer(minLength: 0)
+                .font(.subheadline)
+                .foregroundStyle(tint)
+                .frame(width: 30, height: 30)
+                .background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
             Text(value)
-                .font(.title.bold())
-                .foregroundStyle(.primary)
-                .minimumScaleFactor(0.7)
+                .font(.title2.bold())
             Text(title)
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
-        .padding(16)
-        .frame(maxWidth: .infinity, minHeight: 110, alignment: .leading)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 16))
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 12))
     }
 }
 
-// MARK: - PhaseProgressRow
+// MARK: - PhaseRow
 
-private struct PhaseProgressRow: View {
+private struct PhaseRow: View {
     let stats: PhaseStats
 
     var body: some View {
         VStack(spacing: 6) {
             HStack {
-                HStack(spacing: 6) {
-                    Circle()
-                        .fill(stats.isCurrentPhase ? Color.indigo : Color(.systemGray4))
-                        .frame(width: 8, height: 8)
-                    Text(stats.phase.shortName)
-                        .font(.subheadline.weight(stats.isCurrentPhase ? .semibold : .regular))
-                    if stats.isCurrentPhase {
-                        Text("Now")
-                            .font(.caption2.weight(.semibold))
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.indigo.opacity(0.15), in: Capsule())
-                            .foregroundStyle(.indigo)
-                    }
+                Circle()
+                    .fill(stats.isCurrentPhase ? Color.indigo : Color(.tertiaryLabel))
+                    .frame(width: 7, height: 7)
+                Text(stats.phase.shortName)
+                    .font(.subheadline.weight(stats.isCurrentPhase ? .semibold : .regular))
+                if stats.isCurrentPhase {
+                    Text("Current")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(.indigo)
+                        .padding(.horizontal, 6).padding(.vertical, 2)
+                        .background(Color.indigo.opacity(0.12), in: Capsule())
                 }
                 Spacer()
                 Text(stats.attempted > 0 ? "\(Int(stats.accuracy * 100))%" : "—")
-                    .font(.subheadline.monospacedDigit().weight(.medium))
-                    .foregroundStyle(stats.attempted > 0 ? .primary : .secondary)
+                    .font(.subheadline.monospacedDigit())
+                    .foregroundStyle(.secondary)
             }
             ProgressView(value: stats.accuracy)
-                .tint(stats.isCurrentPhase ? .indigo : .secondary)
+                .tint(stats.isCurrentPhase ? .indigo : Color(.tertiaryLabel))
         }
+        .padding(.vertical, 2)
     }
 }
 
@@ -207,8 +144,8 @@ private struct PhaseProgressRow: View {
 private struct ThresholdRow: View {
     let label: String
     let value: Double
-    let color: Color
-    let tooltip: String
+    let tint: Color
+    let detail: String
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -217,13 +154,12 @@ private struct ThresholdRow: View {
                 Spacer()
                 Text("\(Int(value * 100))%")
                     .font(.subheadline.monospacedDigit().bold())
-                    .foregroundStyle(color)
+                    .foregroundStyle(tint)
             }
-            ProgressView(value: value).tint(color)
-            Text(tooltip)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            ProgressView(value: value).tint(tint)
+            Text(detail).font(.caption).foregroundStyle(.secondary)
         }
+        .padding(.vertical, 2)
     }
 }
 

@@ -1,7 +1,6 @@
 #if canImport(SwiftUI)
 import SwiftUI
 
-/// Celebrates a phase transition and explains what changes cognitively.
 public struct PhaseTransitionView: View {
 
     public let from: LearningPhase
@@ -11,73 +10,92 @@ public struct PhaseTransitionView: View {
     @State private var appeared = false
 
     public init(from: LearningPhase, to: LearningPhase, onContinue: @escaping () -> Void) {
-        self.from = from
-        self.to = to
-        self.onContinue = onContinue
+        self.from = from; self.to = to; self.onContinue = onContinue
     }
 
     public var body: some View {
-        VStack(spacing: 32) {
-            Spacer()
+        ScrollView {
+            VStack(spacing: 32) {
+                // Trophy
+                Image(systemName: "star.circle.fill")
+                    .font(.system(size: 76))
+                    .foregroundStyle(.indigo)
+                    .symbolEffect(.bounce, value: appeared)
+                    .scaleEffect(appeared ? 1 : 0.4)
+                    .opacity(appeared ? 1 : 0)
+                    .padding(.top, 48)
 
-            Image(systemName: "arrow.up.circle.fill")
-                .font(.system(size: 72))
-                .foregroundStyle(.indigo)
-                .scaleEffect(appeared ? 1 : 0.3)
+                VStack(spacing: 6) {
+                    Text("Phase Complete")
+                        .font(.largeTitle.bold())
+                    Text("You've mastered \(from.shortName).")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
                 .opacity(appeared ? 1 : 0)
 
-            VStack(spacing: 12) {
-                Text("Phase Complete!")
-                    .font(.largeTitle.bold())
+                // Info card
+                InfoCard(
+                    icon: "info.circle.fill",
+                    iconTint: .orange,
+                    title: "Expect a temporary dip",
+                    body: "A drop in accuracy when entering a new phase is normal — it reflects a shift in cognitive strategy, not added difficulty. The system adapts with you."
+                )
+                .opacity(appeared ? 1 : 0)
 
-                Text("You've mastered \(from.shortName).")
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
+                // Next phase
+                VStack(alignment: .leading, spacing: 10) {
+                    Label("Up next", systemImage: "arrow.right.circle.fill")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Text(to.displayName)
+                        .font(.headline)
+                    Text(to.phaseDescription)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.indigo.opacity(0.08), in: RoundedRectangle(cornerRadius: 14))
+                .padding(.horizontal)
+                .opacity(appeared ? 1 : 0)
+
+                Button("Start \(to.shortName)") { onContinue() }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                    .tint(.indigo)
+                    .padding(.bottom, 40)
+                    .opacity(appeared ? 1 : 0)
             }
-
-            regressionWarningCard
-
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Next: \(to.displayName)")
-                    .font(.headline)
-                Text(to.phaseDescription)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-            .padding()
-            .background(Color.indigo.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
             .padding(.horizontal)
-
-            Button("Start \(to.shortName)") {
-                onContinue()
-            }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
-            .tint(.indigo)
-
-            Spacer()
         }
         .onAppear {
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
-                appeared = true
-            }
+            withAnimation(.smooth(duration: 0.5)) { appeared = true }
         }
     }
+}
 
-    // MARK: - Regression warning
+// MARK: - InfoCard
 
-    private var regressionWarningCard: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Label("Expect a temporary dip", systemImage: "info.circle.fill")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.orange)
+private struct InfoCard: View {
+    let icon: String
+    let iconTint: Color
+    let title: String
+    let body: String
 
-            Text("A temporary drop in accuracy when entering a new phase is **expected and normal**. It's caused by a change in cognitive strategy — not increased difficulty. The system will adapt with you.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: icon)
+                .font(.title3)
+                .foregroundStyle(iconTint)
+                .frame(width: 32)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title).font(.subheadline.weight(.semibold))
+                Text(body).font(.subheadline).foregroundStyle(.secondary)
+            }
         }
-        .padding()
-        .background(Color.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
+        .padding(16)
+        .background(iconTint.opacity(0.08), in: RoundedRectangle(cornerRadius: 14))
         .padding(.horizontal)
     }
 }

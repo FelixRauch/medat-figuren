@@ -1,7 +1,6 @@
 #if canImport(SwiftUI)
 import SwiftUI
 
-/// Feedback banner shown immediately after a puzzle attempt.
 public struct PuzzleFeedbackView: View {
 
     public let isCorrect: Bool
@@ -14,51 +13,57 @@ public struct PuzzleFeedbackView: View {
         self.onContinue = onContinue
     }
 
+    private var accent: Color { isCorrect ? .green : .orange }
+
     public var body: some View {
-        VStack(spacing: 32) {
-            Spacer()
+        ZStack {
+            accent.opacity(0.04).ignoresSafeArea()
 
-            iconView
-                .scaleEffect(appeared ? 1 : 0.4)
-                .opacity(appeared ? 1 : 0)
+            VStack(spacing: 0) {
+                Spacer()
 
-            VStack(spacing: 8) {
+                // Icon
+                Image(systemName: isCorrect ? "checkmark.circle.fill" : "arrow.clockwise.circle.fill")
+                    .font(.system(size: 80))
+                    .foregroundStyle(accent)
+                    .symbolEffect(.bounce, value: appeared)
+                    .scaleEffect(appeared ? 1 : 0.5)
+                    .opacity(appeared ? 1 : 0)
+                    .padding(.bottom, 28)
+
+                // Headline
                 Text(isCorrect ? "Correct!" : "Not quite")
                     .font(.largeTitle.bold())
+                    .opacity(appeared ? 1 : 0)
+
                 Text(isCorrect
-                     ? "Well done — your spatial reasoning is improving."
-                     : "Don't worry — every attempt strengthens your understanding.")
-                    .font(.body)
+                     ? "Great work — your spatial reasoning is improving."
+                     : "Every attempt builds stronger mental models.")
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
-            }
+                    .padding(.horizontal, 40)
+                    .padding(.top, 8)
+                    .opacity(appeared ? 1 : 0)
 
-            Button("Continue") {
-                onContinue()
-            }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
-            .tint(isCorrect ? .green : .indigo)
-            .accessibilityLabel("Continue to next puzzle")
+                Spacer()
 
-            Spacer()
+                // Continue button
+                Button(action: onContinue) {
+                    Text("Continue")
+                        .font(.body.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .tint(accent)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 40)
+                .opacity(appeared ? 1 : 0)
+            }
         }
         .onAppear {
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.65)) {
-                appeared = true
-            }
-        }
-    }
-
-    private var iconView: some View {
-        ZStack {
-            Circle()
-                .fill(isCorrect ? Color.green.opacity(0.15) : Color.orange.opacity(0.15))
-                .frame(width: 120, height: 120)
-            Image(systemName: isCorrect ? "checkmark.circle.fill" : "arrow.clockwise.circle.fill")
-                .font(.system(size: 64))
-                .foregroundStyle(isCorrect ? .green : .orange)
+            withAnimation(.smooth(duration: 0.45)) { appeared = true }
         }
     }
 }

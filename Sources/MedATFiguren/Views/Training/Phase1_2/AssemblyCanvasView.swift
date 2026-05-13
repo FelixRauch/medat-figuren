@@ -9,19 +9,28 @@ public struct AssemblyCanvasView: View {
     @Bindable public var vm: PuzzleViewModel
     @Environment(AppEnvironment.self) private var env
 
-    /// ID of the currently selected piece (nil = none).
     @State private var selectedID: String? = nil
-    /// Haptic trigger
     @State private var selectionTick = 0
+
+    // Lifted state — keyed by piece.id
+    @State private var positions: [String: CGPoint] = [:]
+    @State private var rotations: [String: Angle] = [:]
+
+    // Canvas-level rotation (two fingers anywhere = rotate selected piece)
+    @GestureState private var liveRotation = Angle.zero
 
     public init(puzzle: Puzzle, vm: PuzzleViewModel) {
         self.puzzle = puzzle
         self.vm = vm
     }
 
+    // MARK: - Body
+
     public var body: some View {
         GeometryReader { geo in
             canvas(in: geo.size)
+                // RotateGesture covers the entire canvas
+                .simultaneousGesture(canvasRotateGesture)
         }
         .navigationTitle(puzzle.shape.name)
         .navigationBarTitleDisplayMode(.inline)
@@ -29,11 +38,27 @@ public struct AssemblyCanvasView: View {
         .toolbar { toolbarContent }
     }
 
+    // MARK: - Canvas rotate gesture (canvas-wide, rotates selected piece)
+
+    private var canvasRotateGesture: some Gesture {
+        RotateGesture(minimumAngleDelta: .degrees(1))
+            .updating($liveRotation) { value, state, _ in
+                state = value.rotation
+            }
+            .onEnded { value in
+                if let id = selectedID {
+                    rotations[id, default: .zero] += value.rotation
+                }
+            }
+    }
+
+    // MARK: - Sub-views
+
     @ViewBuilder
     private func canvas(in size: CGSize) -> some View {
         ZStack(alignment: .topTrailing) {
             background
-            pieces(in: size)
+            pieceViews(in: size)
             hintCard
                 .padding(.top, 16)
                 .padding(.trailing, 16)
@@ -43,30 +68,55 @@ public struct AssemblyCanvasView: View {
 
     private var background: some View {
         ZStack {
-            Color(.systemGray6)
-                .ignoresSafeArea()
+            Color(.systemGray6).ignoresSafeArea()
                 .onTapGesture { selectedID = nil }
-            CanvasGridView()
-                .ignoresSafeArea()
-                .opacity(0.3)
-                .allowsHitTesting(false)
+            CanvasGridView().ignoresSafeArea().opacity(0.3).allowsHitTesting(false)
         }
     }
 
     @ViewBuilder
-    private func pieces(in size: CGSize) -> some View {
+    private func pieceViews(in size: CGSize) -> some View {
         let items = puzzle.assemblyPieces ?? []
         ForEach(Array(items.enumerated()), id: \.element.id) { idx, piece in
+            let start = startPosition(index: idx, total: items.count, in: size)
+            let pos = positions[piece.id] ?? start
+            let rot = rotations[piece.id, default: .zero]
+                    + (selectedID == piece.id ? liveRotation : .zero)
+            let selected = selectedID == piece.id
+
             CanvasPieceView(
                 piece: piece,
                 showEdgeHighlight: puzzle.phase.showsEdgeHighlighting,
-                startPosition: startPosition(index: idx, total: items.count, in: size),
-                isSelected: selectedID == piece.id,
-                onSelect: { selectPiece(piece.id) },
-                onDeselect: { selectedID = nil }
+                position: pos,
+                rotation: rot,
+                isSelected: selected,
+                onDrag: { delta in
+                    // First touch → select immediately
+                    if selectedID != piece.id {
+                        selectedID = piece.id
+                        selectionTick += 1
+                    }
+                    positions[piece.id] = CGPoint(
+                        x: pos.x + delta.width,
+                        y: pos.y + delta.height
+                    )
+                },
+                onTap: {
+                    if selectedID == piece.id { selectedID = nil }
+                    else { selectedID = piece.id; selectionTick += 1 }
+                },
+                onReset: {
+                    positions[piece.id] = start
+                    rotations[piece.id] = .zero
+                },
+                onDoubleTap: {
+                    rotations[piece.id, default: .zero] += .degrees(45)
+                }
             )
         }
     }
+
+    // MARK: - Toolbar
 
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
@@ -79,30 +129,16 @@ public struct AssemblyCanvasView: View {
             }
         }
         ToolbarItem(placement: .principal) {
-            instructionBadge
+            Label(
+                selectedID != nil ? "Twist anywhere to rotate" : "Touch a piece to move it",
+                systemImage: selectedID != nil ? "rotate.right" : "hand.point.up.left.fill"
+            )
+            .font(.caption2)
+            .foregroundStyle(.secondary)
         }
     }
 
-    private var instructionBadge: some View {
-        let active = selectedID != nil
-        return Label(
-            active ? "Drag or twist to manipulate" : "Tap a piece to select",
-            systemImage: active ? "hand.draw.fill" : "hand.tap.fill"
-        )
-        .font(.caption2)
-        .foregroundStyle(.secondary)
-    }
-
-    private func selectPiece(_ id: String) {
-        if selectedID == id {
-            selectedID = nil
-        } else {
-            selectedID = id
-            selectionTick += 1
-        }
-    }
-
-    // MARK: Hint card
+    // MARK: - Hint card
 
     private var hintCard: some View {
         VStack(spacing: 4) {
@@ -122,108 +158,88 @@ public struct AssemblyCanvasView: View {
         .shadow(color: .black.opacity(0.10), radius: 8, y: 2)
     }
 
-    // MARK: Initial positions
+    // MARK: - Helpers
 
     private func startPosition(index: Int, total: Int, in size: CGSize) -> CGPoint {
         let pieceSize: CGFloat = 100
         let spacing: CGFloat = 20
-        let totalWidth = CGFloat(total) * pieceSize + CGFloat(total - 1) * spacing
+        let total = CGFloat(total)
+        let totalWidth = total * pieceSize + (total - 1) * spacing
         let startX = max(pieceSize / 2, (size.width - totalWidth) / 2 + pieceSize / 2)
         return CGPoint(
             x: startX + CGFloat(index) * (pieceSize + spacing),
-            y: size.height * 0.75
+            y: size.height * 0.72
         )
     }
 }
 
 // MARK: - CanvasPieceView
 
+/// Stateless piece view — all position/rotation state lives in the parent canvas.
 private struct CanvasPieceView: View {
 
     let piece: ShapePiece
     let showEdgeHighlight: Bool
-    let startPosition: CGPoint
+    let position: CGPoint
+    let rotation: Angle
     let isSelected: Bool
-    let onSelect: () -> Void
-    let onDeselect: () -> Void
+    let onDrag: (CGSize) -> Void   // called each drag frame with cumulative translation
+    let onTap: () -> Void
+    let onReset: () -> Void
+    let onDoubleTap: () -> Void
 
-    @State private var position: CGPoint
-    @State private var committedAngle = Angle.zero
-    @GestureState private var dragOffset = CGSize.zero
-    @GestureState private var gestureAngle = Angle.zero
+    // Live drag offset — @GestureState resets automatically on end
+    @GestureState private var dragTranslation = CGSize.zero
     @GestureState private var isDragging = false
-
-    init(piece: ShapePiece, showEdgeHighlight: Bool, startPosition: CGPoint,
-         isSelected: Bool, onSelect: @escaping () -> Void, onDeselect: @escaping () -> Void) {
-        self.piece = piece
-        self.showEdgeHighlight = showEdgeHighlight
-        self.startPosition = startPosition
-        self.isSelected = isSelected
-        self.onSelect = onSelect
-        self.onDeselect = onDeselect
-        _position = State(initialValue: startPosition)
-    }
 
     private let size: CGFloat = 100
 
+    // DragGesture with minimumDistance:0 fires on first touch — select + move in one gesture
     private var dragGesture: some Gesture {
-        DragGesture(minimumDistance: 6)
-            .updating($dragOffset) { value, state, _ in state = value.translation }
-            .updating($isDragging) { _, state, _ in state = true }
-            .onEnded { value in
-                position.x += value.translation.width
-                position.y += value.translation.height
+        DragGesture(minimumDistance: 0)
+            .updating($dragTranslation) { value, state, _ in
+                state = value.translation
             }
-    }
-
-    private var rotateGesture: some Gesture {
-        RotateGesture(minimumAngleDelta: .degrees(2))
-            .updating($gestureAngle) { value, state, _ in state = value.rotation }
-            .onEnded { value in committedAngle += value.rotation }
+            .updating($isDragging) { _, state, _ in state = true }
+            .onChanged { value in
+                onDrag(value.translation)
+            }
+            // onEnded: position already committed via onDrag; nothing extra needed
     }
 
     var body: some View {
         ZStack {
-            // Selection glow ring
+            // Selection ring
             if isSelected {
                 Circle()
                     .strokeBorder(
-                        LinearGradient(
-                            colors: [.indigo, .cyan],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
+                        LinearGradient(colors: [.indigo, .cyan],
+                                       startPoint: .topLeading,
+                                       endPoint: .bottomTrailing),
                         lineWidth: 3
                     )
                     .frame(width: size + 20, height: size + 20)
-                    .shadow(color: .indigo.opacity(0.5), radius: 12)
+                    .shadow(color: .indigo.opacity(0.45), radius: 10)
                     .transition(.scale.combined(with: .opacity))
             }
 
-            // The piece shape
+            // Piece shape
             PieceShapeView(
                 piece: piece,
                 fillColor: isSelected
-                    ? Color.indigo.opacity(isDragging ? 0.75 : 0.6)
-                    : Color.indigo.opacity(0.35),
+                    ? Color.indigo.opacity(isDragging ? 0.72 : 0.58)
+                    : Color.indigo.opacity(0.32),
                 strokeColor: showEdgeHighlight ? .yellow
-                    : (isSelected ? .indigo : .indigo.opacity(0.6)),
+                    : (isSelected ? .indigo : .indigo.opacity(0.55)),
                 lineWidth: isSelected ? 2 : 1.5
             )
             .frame(width: size, height: size)
-            .shadow(
-                color: isSelected ? .indigo.opacity(isDragging ? 0.4 : 0.2) : .clear,
-                radius: isDragging ? 16 : 8
-            )
+            .shadow(color: isSelected ? .indigo.opacity(0.25) : .clear,
+                    radius: isDragging ? 18 : 8)
 
-            // Reset button (only visible when selected)
+            // Reset button — top-right corner of piece, only when selected
             if isSelected {
-                Button {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
-                        position = startPosition
-                        committedAngle = .zero
-                    }
-                } label: {
+                Button(action: onReset) {
                     Image(systemName: "arrow.uturn.backward")
                         .font(.system(size: 9, weight: .bold))
                         .foregroundStyle(.white)
@@ -235,29 +251,19 @@ private struct CanvasPieceView: View {
                 .transition(.scale.combined(with: .opacity))
             }
         }
-        .rotationEffect(committedAngle + gestureAngle)
-        .scaleEffect(isDragging ? 1.08 : (isSelected ? 1.03 : 1.0))
-        .offset(dragOffset)
+        .rotationEffect(rotation)
+        .scaleEffect(isDragging ? 1.07 : (isSelected ? 1.03 : 1.0))
         .position(position)
         .zIndex(isSelected ? 999 : 0)
-        .animation(.spring(response: 0.25, dampingFraction: 0.75), value: isSelected)
-        .animation(.interactiveSpring(response: 0.18), value: isDragging)
-        // Tap: select / deselect
-        .onTapGesture { onSelect() }
-        // Drag & rotate — only when selected
-        .gesture(isSelected ? dragGesture : nil)
-        .simultaneousGesture(isSelected ? rotateGesture : nil)
-        // Double-tap: +45° snap (only when selected)
-        .onTapGesture(count: 2) {
-            guard isSelected else { return }
-            withAnimation(.spring(response: 0.28)) {
-                committedAngle += .degrees(45)
-            }
-        }
-        .accessibilityLabel("Puzzle piece\(isSelected ? " (selected)" : "")")
-        .accessibilityHint(isSelected
-            ? "Drag to move. Twist with two fingers to rotate. Double-tap for 45° snap. Tap ↩ to reset."
-            : "Tap to select.")
+        .animation(.spring(response: 0.22, dampingFraction: 0.78), value: isSelected)
+        // Touch to drag (also selects immediately)
+        .gesture(dragGesture)
+        // Tap to toggle selection (fires when no significant drag occurred)
+        .onTapGesture { onTap() }
+        // Double-tap: +45° snap
+        .onTapGesture(count: 2) { onDoubleTap() }
+        .accessibilityLabel("Puzzle piece\(isSelected ? " — selected" : "")")
+        .accessibilityHint(isSelected ? "Drag to move, twist anywhere to rotate." : "Touch to select and drag.")
     }
 }
 
@@ -273,7 +279,7 @@ private struct CanvasGridView: View {
                 while y < size.height {
                     ctx.fill(
                         Path(ellipseIn: CGRect(x: x - 1, y: y - 1, width: 2, height: 2)),
-                        with: .color(.gray.opacity(0.45))
+                        with: .color(.gray.opacity(0.4))
                     )
                     y += spacing
                 }

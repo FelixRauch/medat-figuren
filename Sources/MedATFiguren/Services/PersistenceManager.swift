@@ -52,6 +52,14 @@ public final class PersistenceManager {
         return try decoder.decode(UserCognitiveModel.self, from: data)
     }
 
+    // MARK: - Reset
+
+    /// Deletes all persisted user data files.
+    public func resetAllProgress() {
+        try? fileManager.removeItem(at: progressURL)
+        try? fileManager.removeItem(at: cognitiveModelURL)
+    }
+
     // MARK: - URLs
 
     private var documentsURL: URL {

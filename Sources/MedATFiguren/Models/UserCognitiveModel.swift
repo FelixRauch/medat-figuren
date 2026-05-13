@@ -49,6 +49,13 @@ public final class UserCognitiveModel: Codable {
 
     public init() {}
 
+    public func reset() {
+        isCalibrated                    = false
+        puzzlesAttemptedForCalibration  = 0
+        engagementFloor                 = 0.60
+        progressionThreshold            = 0.78
+    }
+
     // MARK: - Public API
 
     /// Update the model after each puzzle result.

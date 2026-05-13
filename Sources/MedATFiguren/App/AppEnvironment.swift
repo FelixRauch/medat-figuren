@@ -81,6 +81,17 @@ public final class AppEnvironment {
         }
     }
 
+    // MARK: - Reset
+
+    /// Wipes all saved progress and cognitive model data back to factory defaults.
+    public func resetProgress() {
+        persistence.resetAllProgress()
+        progress.reset()
+        cognitiveModel.reset()
+        difficultyEngine.resetForPhase(.phase1)
+        progressionManager.reset()
+    }
+
     // MARK: - Puzzle generation
 
     public func nextPuzzle() -> Puzzle {

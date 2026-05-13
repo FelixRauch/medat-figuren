@@ -5,8 +5,10 @@ public struct SettingsView: View {
 
     public init() {}
 
+    @Environment(AppEnvironment.self) private var env
     @State private var soundEnabled = true
     @State private var hapticEnabled = true
+    @State private var showResetConfirm = false
 
     public var body: some View {
         NavigationStack {
@@ -70,8 +72,28 @@ public struct SettingsView: View {
                             .multilineTextAlignment(.trailing)
                     }
                 }
+                // ── Danger zone ────────────────────────────────────────
+                Section {
+                    Button(role: .destructive) {
+                        showResetConfirm = true
+                    } label: {
+                        Label("Reset All Progress", systemImage: "trash.fill")
+                    }
+                } footer: {
+                    Text("Deletes all results, resets your phase back to Phase 1, and clears the cognitive model. This cannot be undone.")
+                }
             }
             .navigationTitle("Settings")
+            .confirmationDialog(
+                "Reset All Progress?",
+                isPresented: $showResetConfirm,
+                titleVisibility: .visible
+            ) {
+                Button("Reset Everything", role: .destructive) { env.resetProgress() }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("You will start back at Phase 1. All results and statistics will be permanently deleted.")
+            }
         }
     }
 }

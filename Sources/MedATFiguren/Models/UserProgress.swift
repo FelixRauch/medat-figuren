@@ -33,6 +33,14 @@ public final class UserProgress: Codable {
         lastSessionDate = Date()
     }
 
+    public func reset() {
+        currentPhase      = .perceptualOnboarding
+        results           = []
+        totalSessionCount = 0
+        lastSessionDate   = nil
+        phaseEntryDates   = [.perceptualOnboarding: Date()]
+    }
+
     // MARK: - Queries
 
     /// Recent results, optionally filtered by phase. Most recent last.

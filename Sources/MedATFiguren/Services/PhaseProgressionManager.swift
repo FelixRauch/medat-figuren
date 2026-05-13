@@ -38,6 +38,12 @@ public final class PhaseProgressionManager {
         self.cognitiveModel = cognitiveModel
     }
 
+    /// Resets eligibility state (called after a full progress reset).
+    public func reset() {
+        isEligibleForTransition = false
+        transitionConfidence    = 0
+    }
+
     // MARK: - Public API
 
     /// Evaluates whether the user should advance.

@@ -21,69 +21,84 @@ public struct AssemblyCanvasView: View {
 
     public var body: some View {
         GeometryReader { geo in
-            ZStack(alignment: .topTrailing) {
-
-                // ── Background + deselect tap ──────────────────────────
-                Color(.systemGray6)
-                    .ignoresSafeArea()
-                    .onTapGesture { selectedID = nil }
-
-                CanvasGridView()
-                    .ignoresSafeArea()
-                    .opacity(0.3)
-                    .allowsHitTesting(false)
-
-                // ── Pieces ─────────────────────────────────────────────
-                let pieces = puzzle.assemblyPieces ?? []
-                ForEach(Array(pieces.enumerated()), id: \.element.id) { idx, piece in
-                    CanvasPieceView(
-                        piece: piece,
-                        showEdgeHighlight: puzzle.phase.showsEdgeHighlighting,
-                        startPosition: startPosition(index: idx, total: pieces.count, in: geo.size),
-                        isSelected: selectedID == piece.id,
-                        onSelect: {
-                            if selectedID == piece.id {
-                                selectedID = nil
-                            } else {
-                                selectedID = piece.id
-                                selectionTick += 1
-                            }
-                        },
-                        onDeselect: { selectedID = nil }
-                    )
-                }
-
-                // ── Hint card ──────────────────────────────────────────
-                hintCard
-                    .padding(.top, 16)
-                    .padding(.trailing, 16)
-                    .allowsHitTesting(false)
-            }
+            canvas(in: geo.size)
         }
         .navigationTitle(puzzle.shape.name)
         .navigationBarTitleDisplayMode(.inline)
         .sensoryFeedback(.selection, trigger: selectionTick)
-        .toolbar {
-            if puzzle.phase.hintsAllowed {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button { vm.useHint() } label: {
-                        Label("Hint", systemImage: "lightbulb.fill")
-                    }
-                    .tint(.orange)
+        .toolbar { toolbarContent }
+    }
+
+    @ViewBuilder
+    private func canvas(in size: CGSize) -> some View {
+        ZStack(alignment: .topTrailing) {
+            background
+            pieces(in: size)
+            hintCard
+                .padding(.top, 16)
+                .padding(.trailing, 16)
+                .allowsHitTesting(false)
+        }
+    }
+
+    private var background: some View {
+        ZStack {
+            Color(.systemGray6)
+                .ignoresSafeArea()
+                .onTapGesture { selectedID = nil }
+            CanvasGridView()
+                .ignoresSafeArea()
+                .opacity(0.3)
+                .allowsHitTesting(false)
+        }
+    }
+
+    @ViewBuilder
+    private func pieces(in size: CGSize) -> some View {
+        let items = puzzle.assemblyPieces ?? []
+        ForEach(Array(items.enumerated()), id: \.element.id) { idx, piece in
+            CanvasPieceView(
+                piece: piece,
+                showEdgeHighlight: puzzle.phase.showsEdgeHighlighting,
+                startPosition: startPosition(index: idx, total: items.count, in: size),
+                isSelected: selectedID == piece.id,
+                onSelect: { selectPiece(piece.id) },
+                onDeselect: { selectedID = nil }
+            )
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        if puzzle.phase.hintsAllowed {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button { vm.useHint() } label: {
+                    Label("Hint", systemImage: "lightbulb.fill")
                 }
+                .tint(.orange)
             }
-            // Selection instruction badge
-            ToolbarItem(placement: .principal) {
-                if selectedID != nil {
-                    Label("Drag or twist to manipulate", systemImage: "hand.draw.fill")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                } else {
-                    Label("Tap a piece to select", systemImage: "hand.tap.fill")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
-            }
+        }
+        ToolbarItem(placement: .principal) {
+            instructionBadge
+        }
+    }
+
+    private var instructionBadge: some View {
+        let active = selectedID != nil
+        return Label(
+            active ? "Drag or twist to manipulate" : "Tap a piece to select",
+            systemImage: active ? "hand.draw.fill" : "hand.tap.fill"
+        )
+        .font(.caption2)
+        .foregroundStyle(.secondary)
+    }
+
+    private func selectPiece(_ id: UUID) {
+        if selectedID == id {
+            selectedID = nil
+        } else {
+            selectedID = id
+            selectionTick += 1
         }
     }
 

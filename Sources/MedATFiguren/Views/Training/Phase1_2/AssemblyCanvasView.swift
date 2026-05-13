@@ -15,6 +15,8 @@ public struct AssemblyCanvasView: View {
     // Lifted state — keyed by piece.id
     @State private var positions: [String: CGPoint] = [:]
     @State private var rotations: [String: Angle] = [:]
+    // Position at the start of each drag gesture (so cumulative translation is safe)
+    @State private var dragAnchors: [String: CGPoint] = [:]
 
     // Canvas-level rotation (two fingers anywhere = rotate selected piece)
     @GestureState private var liveRotation = Angle.zero
@@ -90,15 +92,20 @@ public struct AssemblyCanvasView: View {
                 position: pos,
                 rotation: rot,
                 isSelected: selected,
-                onDrag: { delta in
-                    // First touch → select immediately
+                onDragStart: {
+                    // Snapshot position when finger first touches
                     if selectedID != piece.id {
                         selectedID = piece.id
                         selectionTick += 1
                     }
+                    dragAnchors[piece.id] = positions[piece.id] ?? start
+                },
+                onDrag: { translation in
+                    // Always anchor + cumulative translation — no double-counting
+                    let anchor = dragAnchors[piece.id] ?? (positions[piece.id] ?? start)
                     positions[piece.id] = CGPoint(
-                        x: pos.x + delta.width,
-                        y: pos.y + delta.height
+                        x: anchor.x + translation.width,
+                        y: anchor.y + translation.height
                     )
                 },
                 onTap: {
@@ -183,7 +190,8 @@ private struct CanvasPieceView: View {
     let position: CGPoint
     let rotation: Angle
     let isSelected: Bool
-    let onDrag: (CGSize) -> Void   // called each drag frame with cumulative translation
+    let onDragStart: () -> Void
+    let onDrag: (CGSize) -> Void
     let onTap: () -> Void
     let onReset: () -> Void
     let onDoubleTap: () -> Void
@@ -191,20 +199,24 @@ private struct CanvasPieceView: View {
     // Live drag offset — @GestureState resets automatically on end
     @GestureState private var dragTranslation = CGSize.zero
     @GestureState private var isDragging = false
+    @State private var dragStarted = false
 
     private let size: CGFloat = 100
 
-    // DragGesture with minimumDistance:0 fires on first touch — select + move in one gesture
     private var dragGesture: some Gesture {
         DragGesture(minimumDistance: 0)
-            .updating($dragTranslation) { value, state, _ in
-                state = value.translation
-            }
+            .updating($dragTranslation) { value, state, _ in state = value.translation }
             .updating($isDragging) { _, state, _ in state = true }
             .onChanged { value in
+                if !dragStarted {
+                    dragStarted = true
+                    onDragStart()
+                }
                 onDrag(value.translation)
             }
-            // onEnded: position already committed via onDrag; nothing extra needed
+            .onEnded { _ in
+                dragStarted = false
+            }
     }
 
     var body: some View {

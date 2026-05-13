@@ -1,6 +1,5 @@
 #if canImport(SwiftUI)
 import SwiftUI
-import UIKit
 
 // MARK: - Assembly canvas (Phases 1 & 2)
 
@@ -10,6 +9,11 @@ public struct AssemblyCanvasView: View {
     @Bindable public var vm: PuzzleViewModel
     @Environment(AppEnvironment.self) private var env
 
+    /// ID of the currently selected piece (nil = none).
+    @State private var selectedID: UUID? = nil
+    /// Haptic trigger
+    @State private var selectionTick = 0
+
     public init(puzzle: Puzzle, vm: PuzzleViewModel) {
         self.puzzle = puzzle
         self.vm = vm
@@ -18,32 +22,47 @@ public struct AssemblyCanvasView: View {
     public var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .topTrailing) {
-                // Background
-                Color(.systemGray6).ignoresSafeArea()
 
-                // Subtle grid hint
+                // ── Background + deselect tap ──────────────────────────
+                Color(.systemGray6)
+                    .ignoresSafeArea()
+                    .onTapGesture { selectedID = nil }
+
                 CanvasGridView()
                     .ignoresSafeArea()
-                    .opacity(0.35)
+                    .opacity(0.3)
+                    .allowsHitTesting(false)
 
-                // Pieces
+                // ── Pieces ─────────────────────────────────────────────
                 let pieces = puzzle.assemblyPieces ?? []
                 ForEach(Array(pieces.enumerated()), id: \.element.id) { idx, piece in
                     CanvasPieceView(
                         piece: piece,
                         showEdgeHighlight: puzzle.phase.showsEdgeHighlighting,
-                        startPosition: startPosition(index: idx, total: pieces.count, in: geo.size)
+                        startPosition: startPosition(index: idx, total: pieces.count, in: geo.size),
+                        isSelected: selectedID == piece.id,
+                        onSelect: {
+                            if selectedID == piece.id {
+                                selectedID = nil
+                            } else {
+                                selectedID = piece.id
+                                selectionTick += 1
+                            }
+                        },
+                        onDeselect: { selectedID = nil }
                     )
                 }
 
-                // Hint card — top-right corner, unobtrusive
+                // ── Hint card ──────────────────────────────────────────
                 hintCard
                     .padding(.top, 16)
                     .padding(.trailing, 16)
+                    .allowsHitTesting(false)
             }
         }
         .navigationTitle(puzzle.shape.name)
         .navigationBarTitleDisplayMode(.inline)
+        .sensoryFeedback(.selection, trigger: selectionTick)
         .toolbar {
             if puzzle.phase.hintsAllowed {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -53,10 +72,22 @@ public struct AssemblyCanvasView: View {
                     .tint(.orange)
                 }
             }
+            // Selection instruction badge
+            ToolbarItem(placement: .principal) {
+                if selectedID != nil {
+                    Label("Drag or twist to manipulate", systemImage: "hand.draw.fill")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                } else {
+                    Label("Tap a piece to select", systemImage: "hand.tap.fill")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
         }
     }
 
-    // MARK: - Hint card
+    // MARK: Hint card
 
     private var hintCard: some View {
         VStack(spacing: 4) {
@@ -69,23 +100,24 @@ public struct AssemblyCanvasView: View {
                 strokeColor: puzzle.phase.showsEdgeHighlighting ? .yellow : .indigo.opacity(0.7),
                 lineWidth: 1.5
             )
-            .frame(width: 68, height: 68)
+            .frame(width: 64, height: 64)
         }
         .padding(10)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
-        .shadow(color: .black.opacity(0.08), radius: 8, y: 2)
+        .shadow(color: .black.opacity(0.10), radius: 8, y: 2)
     }
 
-    // MARK: - Initial positions
+    // MARK: Initial positions
 
     private func startPosition(index: Int, total: Int, in size: CGSize) -> CGPoint {
         let pieceSize: CGFloat = 100
         let spacing: CGFloat = 20
         let totalWidth = CGFloat(total) * pieceSize + CGFloat(total - 1) * spacing
         let startX = max(pieceSize / 2, (size.width - totalWidth) / 2 + pieceSize / 2)
-        let x = startX + CGFloat(index) * (pieceSize + spacing)
-        let y = size.height * 0.78
-        return CGPoint(x: x, y: y)
+        return CGPoint(
+            x: startX + CGFloat(index) * (pieceSize + spacing),
+            y: size.height * 0.75
+        )
     }
 }
 
@@ -96,105 +128,121 @@ private struct CanvasPieceView: View {
     let piece: ShapePiece
     let showEdgeHighlight: Bool
     let startPosition: CGPoint
+    let isSelected: Bool
+    let onSelect: () -> Void
+    let onDeselect: () -> Void
 
-    // Persisted (survive gesture end)
     @State private var position: CGPoint
     @State private var committedAngle = Angle.zero
-
-    // Transient — @GestureState auto-resets to initial value when gesture ends
     @GestureState private var dragOffset = CGSize.zero
     @GestureState private var gestureAngle = Angle.zero
-    @GestureState private var isActive = false
+    @GestureState private var isDragging = false
 
-    init(piece: ShapePiece, showEdgeHighlight: Bool, startPosition: CGPoint) {
+    init(piece: ShapePiece, showEdgeHighlight: Bool, startPosition: CGPoint,
+         isSelected: Bool, onSelect: @escaping () -> Void, onDeselect: @escaping () -> Void) {
         self.piece = piece
         self.showEdgeHighlight = showEdgeHighlight
         self.startPosition = startPosition
+        self.isSelected = isSelected
+        self.onSelect = onSelect
+        self.onDeselect = onDeselect
         _position = State(initialValue: startPosition)
     }
 
     private let size: CGFloat = 100
 
-    // MARK: Gestures
-
-    /// Primary drag — moves the piece by translation delta, not absolute position
     private var dragGesture: some Gesture {
-        DragGesture(minimumDistance: 4)
-            .updating($dragOffset) { value, state, _ in
-                state = value.translation
-            }
-            .updating($isActive) { _, state, _ in
-                state = true
-            }
+        DragGesture(minimumDistance: 6)
+            .updating($dragOffset) { value, state, _ in state = value.translation }
+            .updating($isDragging) { _, state, _ in state = true }
             .onEnded { value in
                 position.x += value.translation.width
                 position.y += value.translation.height
             }
     }
 
-    /// Rotation — uses modern RotateGesture (iOS 17+), attached via .simultaneousGesture
-    /// so it fires alongside the drag gesture without conflict.
     private var rotateGesture: some Gesture {
         RotateGesture(minimumAngleDelta: .degrees(2))
-            .updating($gestureAngle) { value, state, _ in
-                state = value.rotation
-            }
-            .onEnded { value in
-                committedAngle += value.rotation
-            }
+            .updating($gestureAngle) { value, state, _ in state = value.rotation }
+            .onEnded { value in committedAngle += value.rotation }
     }
 
     var body: some View {
         ZStack {
-            // Piece shape
+            // Selection glow ring
+            if isSelected {
+                Circle()
+                    .strokeBorder(
+                        LinearGradient(
+                            colors: [.indigo, .cyan],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 3
+                    )
+                    .frame(width: size + 20, height: size + 20)
+                    .shadow(color: .indigo.opacity(0.5), radius: 12)
+                    .transition(.scale.combined(with: .opacity))
+            }
+
+            // The piece shape
             PieceShapeView(
                 piece: piece,
-                fillColor: isActive ? .indigo.opacity(0.65) : .indigo.opacity(0.45),
-                strokeColor: showEdgeHighlight ? .yellow : .indigo,
-                lineWidth: showEdgeHighlight ? 2.5 : 1.5
+                fillColor: isSelected
+                    ? Color.indigo.opacity(isDragging ? 0.75 : 0.6)
+                    : Color.indigo.opacity(0.35),
+                strokeColor: showEdgeHighlight ? .yellow
+                    : (isSelected ? .indigo : .indigo.opacity(0.6)),
+                lineWidth: isSelected ? 2 : 1.5
             )
             .frame(width: size, height: size)
+            .shadow(
+                color: isSelected ? .indigo.opacity(isDragging ? 0.4 : 0.2) : .clear,
+                radius: isDragging ? 16 : 8
+            )
 
-            // Reset button — small, bottom-right of piece
-            Button {
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
-                    position = startPosition
-                    committedAngle = .zero
+            // Reset button (only visible when selected)
+            if isSelected {
+                Button {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                        position = startPosition
+                        committedAngle = .zero
+                    }
+                } label: {
+                    Image(systemName: "arrow.uturn.backward")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(.white)
+                        .padding(5)
+                        .background(Circle().fill(.indigo))
                 }
-            } label: {
-                Image(systemName: "arrow.uturn.backward")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(.white)
-                    .padding(5)
-                    .background(Circle().fill(.indigo.opacity(0.75)))
+                .offset(x: size / 2 - 12, y: -size / 2 + 12)
+                .buttonStyle(.plain)
+                .transition(.scale.combined(with: .opacity))
             }
-            .offset(x: size / 2 - 14, y: size / 2 - 14)
-            .buttonStyle(.plain)
         }
         .rotationEffect(committedAngle + gestureAngle)
-        .scaleEffect(isActive ? 1.06 : 1.0)
-        .shadow(
-            color: .black.opacity(isActive ? 0.25 : 0.08),
-            radius: isActive ? 14 : 4,
-            y: isActive ? 4 : 1
-        )
-        // Offset during drag (auto-resets via @GestureState), position is the committed center
+        .scaleEffect(isDragging ? 1.08 : (isSelected ? 1.03 : 1.0))
         .offset(dragOffset)
         .position(position)
-        .zIndex(isActive ? 999 : 0)
-        // Primary gesture: drag
-        .gesture(dragGesture)
-        // Simultaneous gesture: rotate — fires alongside drag, no conflict
-        .simultaneousGesture(rotateGesture)
-        // Double-tap: +45° snap
+        .zIndex(isSelected ? 999 : 0)
+        .animation(.spring(response: 0.25, dampingFraction: 0.75), value: isSelected)
+        .animation(.interactiveSpring(response: 0.18), value: isDragging)
+        // Tap: select / deselect
+        .onTapGesture { onSelect() }
+        // Drag & rotate — only when selected
+        .gesture(isSelected ? dragGesture : nil)
+        .simultaneousGesture(isSelected ? rotateGesture : nil)
+        // Double-tap: +45° snap (only when selected)
         .onTapGesture(count: 2) {
+            guard isSelected else { return }
             withAnimation(.spring(response: 0.28)) {
                 committedAngle += .degrees(45)
             }
         }
-        .animation(.interactiveSpring(response: 0.2, dampingFraction: 0.8), value: isActive)
-        .accessibilityLabel("Puzzle piece")
-        .accessibilityHint("Drag to move. Twist with two fingers to rotate. Double-tap for 45° snap. Tap ↩ to reset.")
+        .accessibilityLabel("Puzzle piece\(isSelected ? " (selected)" : "")")
+        .accessibilityHint(isSelected
+            ? "Drag to move. Twist with two fingers to rotate. Double-tap for 45° snap. Tap ↩ to reset."
+            : "Tap to select.")
     }
 }
 
@@ -203,14 +251,14 @@ private struct CanvasPieceView: View {
 private struct CanvasGridView: View {
     var body: some View {
         Canvas { ctx, size in
-            let spacing: CGFloat = 28
+            let spacing: CGFloat = 32
             var x: CGFloat = spacing
             while x < size.width {
                 var y: CGFloat = spacing
                 while y < size.height {
                     ctx.fill(
                         Path(ellipseIn: CGRect(x: x - 1, y: y - 1, width: 2, height: 2)),
-                        with: .color(.gray.opacity(0.5))
+                        with: .color(.gray.opacity(0.45))
                     )
                     y += spacing
                 }

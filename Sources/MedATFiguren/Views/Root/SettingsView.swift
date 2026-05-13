@@ -1,7 +1,6 @@
 #if canImport(SwiftUI)
 import SwiftUI
 
-/// Minimal settings screen.
 public struct SettingsView: View {
 
     public init() {}
@@ -12,20 +11,63 @@ public struct SettingsView: View {
     public var body: some View {
         NavigationStack {
             Form {
-                Section("Feedback") {
-                    Toggle("Sound Effects", isOn: $soundEnabled)
-                    Toggle("Haptic Feedback", isOn: $hapticEnabled)
-                }
-
-                Section("About") {
-                    LabeledContent("App Version", value: Bundle.main.shortVersionString ?? "1.0")
-                    LabeledContent("Training System", value: "MedAT Figuren zusammensetzen")
-                    LabeledContent("Platform", value: "iOS / iPadOS 17+")
-                }
-
+                // ── App icon / header ──────────────────────────────────
                 Section {
-                    NavigationLink("Learning System Overview") {
+                    HStack(spacing: 16) {
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(
+                                LinearGradient(
+                                    colors: [.indigo, .purple],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 60, height: 60)
+                            .overlay {
+                                Image(systemName: "puzzlepiece.fill")
+                                    .font(.title2)
+                                    .foregroundStyle(.white)
+                            }
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("MedAT Figuren")
+                                .font(.headline)
+                            Text("Spatial reasoning trainer")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+
+                // ── Feedback ───────────────────────────────────────────
+                Section("Feedback") {
+                    Toggle(isOn: $soundEnabled) {
+                        Label("Sound Effects", systemImage: "speaker.wave.2.fill")
+                    }
+                    Toggle(isOn: $hapticEnabled) {
+                        Label("Haptic Feedback", systemImage: "hand.tap.fill")
+                    }
+                }
+
+                // ── Learn ──────────────────────────────────────────────
+                Section("Learning System") {
+                    NavigationLink {
                         LearningSystemOverviewView()
+                    } label: {
+                        Label("Phase Overview", systemImage: "brain.head.profile")
+                    }
+                }
+
+                // ── About ──────────────────────────────────────────────
+                Section("About") {
+                    LabeledContent("Version") {
+                        Text(Bundle.main.shortVersionString ?? "1.0")
+                            .foregroundStyle(.secondary)
+                    }
+                    LabeledContent("Training System") {
+                        Text("Figuren zusammensetzen")
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.trailing)
                     }
                 }
             }
@@ -38,24 +80,23 @@ public struct SettingsView: View {
 
 private struct LearningSystemOverviewView: View {
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                ForEach(LearningPhase.allCases, id: \.rawValue) { phase in
-                    VStack(alignment: .leading, spacing: 6) {
-                        Label(phase.displayName, systemImage: "circle.fill")
-                            .font(.headline)
+        List {
+            ForEach(LearningPhase.allCases, id: \.rawValue) { phase in
+                Section {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label(phase.cognitiveMode, systemImage: "sparkles")
+                            .font(.subheadline.weight(.medium))
                             .foregroundStyle(.indigo)
-                        Text(phase.cognitiveMode)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
                         Text(phase.phaseDescription)
                             .font(.subheadline)
+                            .foregroundStyle(.secondary)
                     }
-                    .padding()
-                    .background(Color(.systemGray6), in: RoundedRectangle(cornerRadius: 12))
+                    .padding(.vertical, 4)
+                } header: {
+                    Label(phase.displayName, systemImage: "circle.fill")
+                        .foregroundStyle(.indigo)
                 }
             }
-            .padding()
         }
         .navigationTitle("Learning System")
         .navigationBarTitleDisplayMode(.inline)

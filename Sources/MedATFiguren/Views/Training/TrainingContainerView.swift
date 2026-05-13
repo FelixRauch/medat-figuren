@@ -1,8 +1,6 @@
 #if canImport(SwiftUI)
 import SwiftUI
 
-/// Top-level training view that owns the `PuzzleViewModel` and routes
-/// between the phase intro, active puzzle UI, feedback, and transition screens.
 public struct TrainingContainerView: View {
 
     @Environment(AppEnvironment.self) private var env
@@ -11,15 +9,37 @@ public struct TrainingContainerView: View {
     public init() {}
 
     public var body: some View {
-        Group {
-            if let vm {
-                trainingContent(vm: vm)
-            } else {
-                ProgressView("Loading…")
-                    .task { setupVM() }
+        NavigationStack {
+            Group {
+                if let vm {
+                    trainingContent(vm: vm)
+                } else {
+                    loadingView
+                        .task { setupVM() }
+                }
+            }
+            .navigationTitle(env.progress.currentPhase.shortName)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    PhaseIndicatorView(phase: env.progress.currentPhase)
+                }
             }
         }
-        .navigationTitle(env.progress.currentPhase.shortName)
+    }
+
+    // MARK: - Loading
+
+    private var loadingView: some View {
+        VStack(spacing: 20) {
+            ProgressView()
+                .controlSize(.large)
+            Text("Preparing puzzle…")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(.systemGroupedBackground))
     }
 
     // MARK: - State routing
@@ -28,8 +48,16 @@ public struct TrainingContainerView: View {
     private func trainingContent(vm: PuzzleViewModel) -> some View {
         switch vm.state {
         case .loading:
-            ProgressView("Preparing puzzle…")
-                .onAppear { vm.loadNextPuzzle() }
+            VStack(spacing: 20) {
+                ProgressView()
+                    .controlSize(.large)
+                Text("Generating puzzle…")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color(.systemGroupedBackground))
+            .onAppear { vm.loadNextPuzzle() }
 
         case .predicting:
             if let puzzle = vm.currentPuzzle {
@@ -60,8 +88,20 @@ public struct TrainingContainerView: View {
             }
 
         case .finished:
-            Text("Mastery Achieved! 🎉")
-                .font(.largeTitle.bold())
+            VStack(spacing: 24) {
+                Image(systemName: "trophy.fill")
+                    .font(.system(size: 64))
+                    .foregroundStyle(.yellow)
+                Text("Mastery Achieved!")
+                    .font(.largeTitle.bold())
+                Text("You've completed all 5 phases of MedAT Figuren training.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color(.systemGroupedBackground))
         }
     }
 

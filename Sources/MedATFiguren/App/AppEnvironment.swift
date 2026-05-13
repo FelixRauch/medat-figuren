@@ -88,7 +88,7 @@ public final class AppEnvironment {
         persistence.resetAllProgress()
         progress.reset()
         cognitiveModel.reset()
-        difficultyEngine.resetForPhase(.phase1)
+        difficultyEngine.resetForPhase(.perceptualOnboarding)
         progressionManager.reset()
     }
 

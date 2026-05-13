@@ -1,20 +1,8 @@
 #if canImport(SwiftUI)
 import SwiftUI
+import UIKit
 
 // MARK: - Assembly canvas (Phases 1 & 2)
-//
-// Layout:
-//   ┌─────────────────────────────┐
-//   │  Phase header               │
-//   │  ┌───────────────────────┐  │
-//   │  │  Target shape outline │  │  ← drop / assemble area
-//   │  └───────────────────────┘  │
-//   │  ──────────────────────     │
-//   │  [ piece ][ piece ][ … ]    │  ← tray (clips disabled so pieces
-//   └─────────────────────────────┘      can escape while dragging)
-//
-// Pieces lift out of the tray and stay wherever the user drops them.
-// Two-finger twist = continuous rotation.  Double-tap = +45° snap.
 
 public struct AssemblyCanvasView: View {
 
@@ -29,146 +17,309 @@ public struct AssemblyCanvasView: View {
 
     public var body: some View {
         GeometryReader { geo in
-            VStack(spacing: 0) {
+            ZStack(alignment: .topTrailing) {
+                // Background
+                Color(.systemGray6).ignoresSafeArea()
 
-                // ── Phase header ────────────────────────────────────────
-                VStack(spacing: 4) {
-                    PhaseIndicatorView(phase: puzzle.phase)
-                    Text("Assemble the shape")
-                        .font(.headline)
-                        .foregroundStyle(.secondary)
-                }
-                .padding(.top, 16)
-                .padding(.bottom, 12)
+                // Subtle grid hint
+                CanvasGridView()
+                    .ignoresSafeArea()
+                    .opacity(0.35)
 
-                // ── Target / work area ──────────────────────────────────
-                let canvasSize = min(geo.size.width - 32, geo.size.height * 0.46)
-                ZStack {
-                    RoundedRectangle(cornerRadius: 18)
-                        .fill(Color(.systemBackground))
-                        .shadow(color: .black.opacity(0.06), radius: 8, y: 2)
-
-                    TargetShapeView(
-                        shape: puzzle.shape,
-                        strokeColor: puzzle.phase.showsEdgeHighlighting ? .yellow : .indigo
-                    )
-                    .padding(20)
-                }
-                .frame(width: canvasSize, height: canvasSize)
-
-                Divider().padding(.vertical, 10)
-
-                // ── Piece tray ──────────────────────────────────────────
-                // scrollClipDisabled() lets pieces visually escape the
-                // tray bounds while being dragged upward.
+                // Pieces
                 let pieces = puzzle.assemblyPieces ?? []
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 16) {
-                        ForEach(pieces) { piece in
-                            TrayPieceView(
-                                piece: piece,
-                                showEdgeHighlight: puzzle.phase.showsEdgeHighlighting
-                            )
-                            .frame(width: 96, height: 96)
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 24)  // vertical room so pieces escape upward
+                ForEach(Array(pieces.enumerated()), id: \.element.id) { idx, piece in
+                    CanvasPieceView(
+                        piece: piece,
+                        showEdgeHighlight: puzzle.phase.showsEdgeHighlighting,
+                        startPosition: startPosition(index: idx, total: pieces.count, in: geo.size)
+                    )
                 }
-                .scrollClipDisabled()
-                .frame(maxHeight: 144)
 
-                Spacer(minLength: 0)
-
-                // ── Hint button ─────────────────────────────────────────
-                if puzzle.phase.hintsAllowed {
+                // Hint card — top-right corner, unobtrusive
+                hintCard
+                    .padding(.top, 16)
+                    .padding(.trailing, 16)
+            }
+            .coordinateSpace(name: "canvas")
+        }
+        .navigationTitle(puzzle.shape.name)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if puzzle.phase.hintsAllowed {
+                ToolbarItem(placement: .navigationBarLeading) {
                     Button { vm.useHint() } label: {
                         Label("Hint", systemImage: "lightbulb.fill")
-                            .font(.subheadline)
                     }
-                    .buttonStyle(.bordered)
                     .tint(.orange)
-                    .padding(.bottom, 16)
                 }
             }
         }
     }
+
+    // MARK: - Hint card
+
+    private var hintCard: some View {
+        VStack(spacing: 4) {
+            Text("Target")
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(.secondary)
+            TargetShapeView(
+                shape: puzzle.shape,
+                fillColor: .indigo.opacity(0.08),
+                strokeColor: puzzle.phase.showsEdgeHighlighting ? .yellow : .indigo.opacity(0.7),
+                lineWidth: 1.5
+            )
+            .frame(width: 68, height: 68)
+        }
+        .padding(10)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
+        .shadow(color: .black.opacity(0.08), radius: 8, y: 2)
+    }
+
+    // MARK: - Initial positions
+
+    private func startPosition(index: Int, total: Int, in size: CGSize) -> CGPoint {
+        let pieceSize: CGFloat = 100
+        let spacing: CGFloat = 20
+        let totalWidth = CGFloat(total) * pieceSize + CGFloat(total - 1) * spacing
+        let startX = max(pieceSize / 2, (size.width - totalWidth) / 2 + pieceSize / 2)
+        let x = startX + CGFloat(index) * (pieceSize + spacing)
+        let y = size.height * 0.78
+        return CGPoint(x: x, y: y)
+    }
 }
 
-// MARK: - TrayPieceView
+// MARK: - CanvasPieceView
 
-/// A piece that starts in the tray and can be freely dragged anywhere on screen.
-/// Supports simultaneous drag + two-finger rotation.  Double-tap snaps +45°.
-private struct TrayPieceView: View {
+private struct CanvasPieceView: View {
 
     let piece: ShapePiece
     let showEdgeHighlight: Bool
+    let startPosition: CGPoint
 
-    @State private var committedOffset: CGSize = .zero
-    @State private var dragTranslation: CGSize = .zero
-    @State private var rotation: Double = 0         // accumulated radians
-    @State private var gestureRotation: Double = 0  // live delta from current gesture
-    @State private var isDragging = false
-    @State private var isRotating = false
+    @State private var position: CGPoint
+    @State private var rotation: Double = 0       // committed radians
+    @State private var liveRotation: Double = 0   // in-flight rotation delta
+    @State private var isActive = false
 
-    private var currentOffset: CGSize {
-        CGSize(width:  committedOffset.width  + dragTranslation.width,
-               height: committedOffset.height + dragTranslation.height)
+    init(piece: ShapePiece, showEdgeHighlight: Bool, startPosition: CGPoint) {
+        self.piece = piece
+        self.showEdgeHighlight = showEdgeHighlight
+        self.startPosition = startPosition
+        _position = State(initialValue: startPosition)
     }
 
-    // Combine drag + rotation simultaneously so both work with multiple fingers
-    private var combinedGesture: some Gesture {
-        DragGesture(minimumDistance: 4)
-            .simultaneously(with: RotationGesture())
-            .onChanged { value in
-                if let drag = value.first {
-                    isDragging = true
-                    dragTranslation = drag.translation
-                }
-                if let rot = value.second {
-                    isRotating = true
-                    gestureRotation = rot.radians
-                }
-            }
-            .onEnded { value in
-                if let drag = value.first {
-                    committedOffset = CGSize(
-                        width:  committedOffset.width  + drag.translation.width,
-                        height: committedOffset.height + drag.translation.height
-                    )
-                    dragTranslation = .zero
-                    isDragging = false
-                }
-                if let rot = value.second {
-                    rotation += rot.radians
-                    gestureRotation = 0
-                    isRotating = false
-                }
-            }
-    }
+    private let size: CGFloat = 100
 
     var body: some View {
-        PieceShapeView(
-            piece: piece,
-            fillColor: .indigo.opacity(0.5),
-            strokeColor: showEdgeHighlight ? .yellow : .indigo.opacity(0.85),
-            lineWidth: showEdgeHighlight ? 3 : 1.5
+        ZStack {
+            // Piece shape
+            PieceShapeView(
+                piece: piece,
+                fillColor: isActive ? .indigo.opacity(0.65) : .indigo.opacity(0.45),
+                strokeColor: showEdgeHighlight ? .yellow : .indigo,
+                lineWidth: showEdgeHighlight ? 2.5 : 1.5
+            )
+            .frame(width: size, height: size)
+
+            // Reset button — small, bottom-right of piece
+            Button {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                    position = startPosition
+                    rotation = 0
+                    liveRotation = 0
+                }
+            } label: {
+                Image(systemName: "arrow.uturn.backward")
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundStyle(.white)
+                    .padding(5)
+                    .background(Circle().fill(.indigo.opacity(0.75)))
+            }
+            .offset(x: size / 2 - 14, y: size / 2 - 14)
+            .buttonStyle(.plain)
+        }
+        .rotationEffect(.radians(rotation + liveRotation))
+        .scaleEffect(isActive ? 1.06 : 1.0)
+        .shadow(color: .black.opacity(isActive ? 0.25 : 0.08),
+                radius: isActive ? 14 : 4, y: isActive ? 4 : 1)
+        .position(position)
+        .zIndex(isActive ? 999 : 0)
+        .overlay(
+            // UIKit gesture bridge — fills the piece frame, handles all gestures
+            SimultaneousGestureOverlay(
+                onMove: { delta in
+                    isActive = true
+                    position.x += delta.x
+                    position.y += delta.y
+                },
+                onRotate: { delta in
+                    liveRotation = delta
+                },
+                onEnd: { rotationDelta in
+                    rotation += rotationDelta
+                    liveRotation = 0
+                    isActive = false
+                }
+            )
+            .frame(width: size, height: size)
+            // keep the overlay centred on the piece, accounting for its own rotation
+            .rotationEffect(.radians(rotation + liveRotation))
         )
-        .rotationEffect(.radians(rotation + gestureRotation))
-        .scaleEffect(isDragging ? 1.1 : 1.0)
-        .shadow(color: .black.opacity(isDragging || isRotating ? 0.2 : 0.06),
-                radius: isDragging || isRotating ? 10 : 3)
-        .offset(currentOffset)
-        .zIndex(isDragging || isRotating ? 999 : 0)
-        .gesture(combinedGesture)
         .onTapGesture(count: 2) {
             withAnimation(.spring(response: 0.28)) {
                 rotation += .pi / 4
             }
         }
-        .accessibilityLabel("Puzzle piece — \(piece.id)")
-        .accessibilityHint("Drag to move. Twist with two fingers to rotate. Double-tap to snap 45°.")
-        .animation(.spring(response: 0.22), value: isDragging)
+        .animation(.interactiveSpring(response: 0.2, dampingFraction: 0.8), value: isActive)
+        .accessibilityLabel("Puzzle piece")
+        .accessibilityHint("Drag to move. Twist with two fingers to rotate. Double-tap for 45° snap. Double-tap reset icon to return home.")
+    }
+}
+
+// MARK: - SimultaneousGestureOverlay
+
+/// A transparent UIView that hosts a UIPanGestureRecognizer and a
+/// UIRotationGestureRecognizer configured to fire simultaneously.
+private struct SimultaneousGestureOverlay: UIViewRepresentable {
+
+    /// Called each frame during a pan with (dx, dy) incremental delta.
+    var onMove: (CGPoint) -> Void
+    /// Called each frame during rotation with total in-flight radians.
+    var onRotate: (Double) -> Void
+    /// Called when all fingers lift. `rotationDelta` is the total rotation to commit.
+    var onEnd: (Double) -> Void
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onMove: onMove, onRotate: onRotate, onEnd: onEnd)
+    }
+
+    func makeUIView(context: Context) -> UIView {
+        let view = UIView()
+        view.backgroundColor = .clear
+        view.isUserInteractionEnabled = true
+
+        let pan = UIPanGestureRecognizer(
+            target: context.coordinator,
+            action: #selector(Coordinator.handlePan(_:))
+        )
+        pan.delegate = context.coordinator
+        pan.maximumNumberOfTouches = 2
+        view.addGestureRecognizer(pan)
+
+        let rotation = UIRotationGestureRecognizer(
+            target: context.coordinator,
+            action: #selector(Coordinator.handleRotation(_:))
+        )
+        rotation.delegate = context.coordinator
+        view.addGestureRecognizer(rotation)
+
+        context.coordinator.panRecognizer = pan
+        context.coordinator.rotationRecognizer = rotation
+        return view
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {
+        context.coordinator.onMove = onMove
+        context.coordinator.onRotate = onRotate
+        context.coordinator.onEnd = onEnd
+    }
+
+    // MARK: Coordinator
+
+    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
+
+        var onMove: (CGPoint) -> Void
+        var onRotate: (Double) -> Void
+        var onEnd: (Double) -> Void
+
+        weak var panRecognizer: UIPanGestureRecognizer?
+        weak var rotationRecognizer: UIRotationGestureRecognizer?
+
+        private var lastPanTranslation: CGPoint = .zero
+        private var accumulatedRotation: Double = 0
+
+        init(onMove: @escaping (CGPoint) -> Void,
+             onRotate: @escaping (Double) -> Void,
+             onEnd: @escaping (Double) -> Void) {
+            self.onMove = onMove
+            self.onRotate = onRotate
+            self.onEnd = onEnd
+        }
+
+        // Allow pan and rotation to fire at the same time
+        func gestureRecognizer(
+            _ gestureRecognizer: UIGestureRecognizer,
+            shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer
+        ) -> Bool { true }
+
+        @objc func handlePan(_ gr: UIPanGestureRecognizer) {
+            switch gr.state {
+            case .began:
+                lastPanTranslation = .zero
+            case .changed:
+                let t = gr.translation(in: gr.view?.superview)
+                let delta = CGPoint(x: t.x - lastPanTranslation.x,
+                                    y: t.y - lastPanTranslation.y)
+                lastPanTranslation = t
+                DispatchQueue.main.async { self.onMove(delta) }
+            case .ended, .cancelled, .failed:
+                lastPanTranslation = .zero
+                checkEnd()
+            default: break
+            }
+        }
+
+        @objc func handleRotation(_ gr: UIRotationGestureRecognizer) {
+            switch gr.state {
+            case .began:
+                accumulatedRotation = 0
+            case .changed:
+                accumulatedRotation = Double(gr.rotation)
+                DispatchQueue.main.async { self.onRotate(self.accumulatedRotation) }
+            case .ended, .cancelled, .failed:
+                checkEnd()
+            default: break
+            }
+        }
+
+        private func checkEnd() {
+            let panDone = panRecognizer.map {
+                $0.state == .ended || $0.state == .cancelled || $0.state == .failed || $0.state == .possible
+            } ?? true
+            let rotDone = rotationRecognizer.map {
+                $0.state == .ended || $0.state == .cancelled || $0.state == .failed || $0.state == .possible
+            } ?? true
+            if panDone && rotDone {
+                let r = accumulatedRotation
+                accumulatedRotation = 0
+                DispatchQueue.main.async { self.onEnd(r) }
+            }
+        }
+    }
+}
+
+// MARK: - CanvasGridView
+
+/// Light dot-grid background to give the canvas a worksheet feel.
+private struct CanvasGridView: View {
+    var body: some View {
+        GeometryReader { geo in
+            Canvas { ctx, size in
+                let spacing: CGFloat = 28
+                var x: CGFloat = spacing
+                while x < size.width {
+                    var y: CGFloat = spacing
+                    while y < size.height {
+                        let dot = Path(ellipseIn: CGRect(x: x - 1, y: y - 1, width: 2, height: 2))
+                        ctx.fill(dot, with: .color(.gray.opacity(0.5)))
+                        y += spacing
+                    }
+                    x += spacing
+                }
+            }
+        }
     }
 }
 

@@ -87,6 +87,11 @@ public final class PuzzleViewModel {
         checkAssemblyComplete()
     }
 
+    /// Call when the user submits an assembly that doesn't meet the correctness criteria.
+    public func submitIncorrectAssembly() {
+        commit(isCorrect: false, predictionCorrect: nil)
+    }
+
     // MARK: - Phase 4 & 5 — Multiple choice
 
     public func selectOption(index: Int) {

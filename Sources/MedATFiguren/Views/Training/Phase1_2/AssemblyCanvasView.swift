@@ -41,7 +41,6 @@ public struct AssemblyCanvasView: View {
                     .padding(.top, 16)
                     .padding(.trailing, 16)
             }
-            .coordinateSpace(name: "canvas")
         }
         .navigationTitle(puzzle.shape.name)
         .navigationBarTitleDisplayMode(.inline)
@@ -98,10 +97,14 @@ private struct CanvasPieceView: View {
     let showEdgeHighlight: Bool
     let startPosition: CGPoint
 
+    // Persisted (survive gesture end)
     @State private var position: CGPoint
-    @State private var rotation: Double = 0       // committed radians
-    @State private var liveRotation: Double = 0   // in-flight rotation delta
-    @State private var isActive = false
+    @State private var committedAngle = Angle.zero
+
+    // Transient — @GestureState auto-resets to initial value when gesture ends
+    @GestureState private var dragOffset = CGSize.zero
+    @GestureState private var gestureAngle = Angle.zero
+    @GestureState private var isActive = false
 
     init(piece: ShapePiece, showEdgeHighlight: Bool, startPosition: CGPoint) {
         self.piece = piece
@@ -111,6 +114,35 @@ private struct CanvasPieceView: View {
     }
 
     private let size: CGFloat = 100
+
+    // MARK: Gestures
+
+    /// Primary drag — moves the piece by translation delta, not absolute position
+    private var dragGesture: some Gesture {
+        DragGesture(minimumDistance: 4)
+            .updating($dragOffset) { value, state, _ in
+                state = value.translation
+            }
+            .updating($isActive) { _, state, _ in
+                state = true
+            }
+            .onEnded { value in
+                position.x += value.translation.width
+                position.y += value.translation.height
+            }
+    }
+
+    /// Rotation — uses modern RotateGesture (iOS 17+), attached via .simultaneousGesture
+    /// so it fires alongside the drag gesture without conflict.
+    private var rotateGesture: some Gesture {
+        RotateGesture(minimumAngleDelta: .degrees(2))
+            .updating($gestureAngle) { value, state, _ in
+                state = value.rotation
+            }
+            .onEnded { value in
+                committedAngle += value.rotation
+            }
+    }
 
     var body: some View {
         ZStack {
@@ -127,8 +159,7 @@ private struct CanvasPieceView: View {
             Button {
                 withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
                     position = startPosition
-                    rotation = 0
-                    liveRotation = 0
+                    committedAngle = .zero
                 }
             } label: {
                 Image(systemName: "arrow.uturn.backward")
@@ -140,184 +171,50 @@ private struct CanvasPieceView: View {
             .offset(x: size / 2 - 14, y: size / 2 - 14)
             .buttonStyle(.plain)
         }
-        .rotationEffect(.radians(rotation + liveRotation))
+        .rotationEffect(committedAngle + gestureAngle)
         .scaleEffect(isActive ? 1.06 : 1.0)
-        .shadow(color: .black.opacity(isActive ? 0.25 : 0.08),
-                radius: isActive ? 14 : 4, y: isActive ? 4 : 1)
+        .shadow(
+            color: .black.opacity(isActive ? 0.25 : 0.08),
+            radius: isActive ? 14 : 4,
+            y: isActive ? 4 : 1
+        )
+        // Offset during drag (auto-resets via @GestureState), position is the committed center
+        .offset(dragOffset)
         .position(position)
         .zIndex(isActive ? 999 : 0)
-        .overlay(
-            // UIKit gesture bridge — fills the piece frame, handles all gestures
-            SimultaneousGestureOverlay(
-                onMove: { delta in
-                    isActive = true
-                    position.x += delta.x
-                    position.y += delta.y
-                },
-                onRotate: { delta in
-                    liveRotation = delta
-                },
-                onEnd: { rotationDelta in
-                    rotation += rotationDelta
-                    liveRotation = 0
-                    isActive = false
-                }
-            )
-            .frame(width: size, height: size)
-            // keep the overlay centred on the piece, accounting for its own rotation
-            .rotationEffect(.radians(rotation + liveRotation))
-        )
+        // Primary gesture: drag
+        .gesture(dragGesture)
+        // Simultaneous gesture: rotate — fires alongside drag, no conflict
+        .simultaneousGesture(rotateGesture)
+        // Double-tap: +45° snap
         .onTapGesture(count: 2) {
             withAnimation(.spring(response: 0.28)) {
-                rotation += .pi / 4
+                committedAngle += .degrees(45)
             }
         }
         .animation(.interactiveSpring(response: 0.2, dampingFraction: 0.8), value: isActive)
         .accessibilityLabel("Puzzle piece")
-        .accessibilityHint("Drag to move. Twist with two fingers to rotate. Double-tap for 45° snap. Double-tap reset icon to return home.")
-    }
-}
-
-// MARK: - SimultaneousGestureOverlay
-
-/// A transparent UIView that hosts a UIPanGestureRecognizer and a
-/// UIRotationGestureRecognizer configured to fire simultaneously.
-private struct SimultaneousGestureOverlay: UIViewRepresentable {
-
-    /// Called each frame during a pan with (dx, dy) incremental delta.
-    var onMove: (CGPoint) -> Void
-    /// Called each frame during rotation with total in-flight radians.
-    var onRotate: (Double) -> Void
-    /// Called when all fingers lift. `rotationDelta` is the total rotation to commit.
-    var onEnd: (Double) -> Void
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(onMove: onMove, onRotate: onRotate, onEnd: onEnd)
-    }
-
-    func makeUIView(context: Context) -> UIView {
-        let view = UIView()
-        view.backgroundColor = .clear
-        view.isUserInteractionEnabled = true
-
-        let pan = UIPanGestureRecognizer(
-            target: context.coordinator,
-            action: #selector(Coordinator.handlePan(_:))
-        )
-        pan.delegate = context.coordinator
-        pan.maximumNumberOfTouches = 2
-        view.addGestureRecognizer(pan)
-
-        let rotation = UIRotationGestureRecognizer(
-            target: context.coordinator,
-            action: #selector(Coordinator.handleRotation(_:))
-        )
-        rotation.delegate = context.coordinator
-        view.addGestureRecognizer(rotation)
-
-        context.coordinator.panRecognizer = pan
-        context.coordinator.rotationRecognizer = rotation
-        return view
-    }
-
-    func updateUIView(_ uiView: UIView, context: Context) {
-        context.coordinator.onMove = onMove
-        context.coordinator.onRotate = onRotate
-        context.coordinator.onEnd = onEnd
-    }
-
-    // MARK: Coordinator
-
-    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
-
-        var onMove: (CGPoint) -> Void
-        var onRotate: (Double) -> Void
-        var onEnd: (Double) -> Void
-
-        weak var panRecognizer: UIPanGestureRecognizer?
-        weak var rotationRecognizer: UIRotationGestureRecognizer?
-
-        private var lastPanTranslation: CGPoint = .zero
-        private var accumulatedRotation: Double = 0
-
-        init(onMove: @escaping (CGPoint) -> Void,
-             onRotate: @escaping (Double) -> Void,
-             onEnd: @escaping (Double) -> Void) {
-            self.onMove = onMove
-            self.onRotate = onRotate
-            self.onEnd = onEnd
-        }
-
-        // Allow pan and rotation to fire at the same time
-        func gestureRecognizer(
-            _ gestureRecognizer: UIGestureRecognizer,
-            shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer
-        ) -> Bool { true }
-
-        @objc func handlePan(_ gr: UIPanGestureRecognizer) {
-            switch gr.state {
-            case .began:
-                lastPanTranslation = .zero
-            case .changed:
-                let t = gr.translation(in: gr.view?.superview)
-                let delta = CGPoint(x: t.x - lastPanTranslation.x,
-                                    y: t.y - lastPanTranslation.y)
-                lastPanTranslation = t
-                DispatchQueue.main.async { self.onMove(delta) }
-            case .ended, .cancelled, .failed:
-                lastPanTranslation = .zero
-                checkEnd()
-            default: break
-            }
-        }
-
-        @objc func handleRotation(_ gr: UIRotationGestureRecognizer) {
-            switch gr.state {
-            case .began:
-                accumulatedRotation = 0
-            case .changed:
-                accumulatedRotation = Double(gr.rotation)
-                DispatchQueue.main.async { self.onRotate(self.accumulatedRotation) }
-            case .ended, .cancelled, .failed:
-                checkEnd()
-            default: break
-            }
-        }
-
-        private func checkEnd() {
-            let panDone = panRecognizer.map {
-                $0.state == .ended || $0.state == .cancelled || $0.state == .failed || $0.state == .possible
-            } ?? true
-            let rotDone = rotationRecognizer.map {
-                $0.state == .ended || $0.state == .cancelled || $0.state == .failed || $0.state == .possible
-            } ?? true
-            if panDone && rotDone {
-                let r = accumulatedRotation
-                accumulatedRotation = 0
-                DispatchQueue.main.async { self.onEnd(r) }
-            }
-        }
+        .accessibilityHint("Drag to move. Twist with two fingers to rotate. Double-tap for 45° snap. Tap ↩ to reset.")
     }
 }
 
 // MARK: - CanvasGridView
 
-/// Light dot-grid background to give the canvas a worksheet feel.
 private struct CanvasGridView: View {
     var body: some View {
-        GeometryReader { geo in
-            Canvas { ctx, size in
-                let spacing: CGFloat = 28
-                var x: CGFloat = spacing
-                while x < size.width {
-                    var y: CGFloat = spacing
-                    while y < size.height {
-                        let dot = Path(ellipseIn: CGRect(x: x - 1, y: y - 1, width: 2, height: 2))
-                        ctx.fill(dot, with: .color(.gray.opacity(0.5)))
-                        y += spacing
-                    }
-                    x += spacing
+        Canvas { ctx, size in
+            let spacing: CGFloat = 28
+            var x: CGFloat = spacing
+            while x < size.width {
+                var y: CGFloat = spacing
+                while y < size.height {
+                    ctx.fill(
+                        Path(ellipseIn: CGRect(x: x - 1, y: y - 1, width: 2, height: 2)),
+                        with: .color(.gray.opacity(0.5))
+                    )
+                    y += spacing
                 }
+                x += spacing
             }
         }
     }

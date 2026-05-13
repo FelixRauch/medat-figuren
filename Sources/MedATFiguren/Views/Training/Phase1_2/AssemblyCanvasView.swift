@@ -15,6 +15,7 @@ public struct AssemblyCanvasView: View {
     @State private var rotations: [String: Angle] = [:]
     @State private var dragAnchors: [String: CGPoint] = [:]
     @GestureState private var liveRotation = Angle.zero
+    @State private var submitScale: CGFloat = 1
 
     public init(puzzle: Puzzle, vm: PuzzleViewModel) {
         self.puzzle = puzzle
@@ -60,6 +61,20 @@ public struct AssemblyCanvasView: View {
                 .allowsHitTesting(false)
 
             pieceViews(in: size)
+
+            // Submit button — bottom centre
+            VStack {
+                Spacer()
+                submitButton
+                    .padding(.bottom, 32)
+            }
+
+            // Submit button — bottom centre
+            VStack {
+                Spacer()
+                submitButton
+                    .padding(.bottom, 32)
+            }
 
             hintCard
                 .padding(.top, 16)
@@ -156,6 +171,39 @@ public struct AssemblyCanvasView: View {
         }
         .padding(10)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14))
+    }
+
+    // MARK: - Submit
+
+    private var submitButton: some View {
+        Button(action: submitAssembly) {
+            Label("Submit Assembly", systemImage: "checkmark.circle.fill")
+                .font(.headline)
+                .foregroundStyle(.black)
+                .padding(.horizontal, 28)
+                .padding(.vertical, 14)
+                .background(
+                    Capsule()
+                        .fill(.white)
+                        .shadow(color: .white.opacity(0.25), radius: 12, y: 4)
+                )
+        }
+        .scaleEffect(submitScale)
+        .buttonStyle(.plain)
+    }
+
+    private func submitAssembly() {
+        withAnimation(.snappy(duration: 0.12).repeatCount(1, autoreverses: true)) {
+            submitScale = 0.92
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            submitScale = 1
+        }
+        // Mark every piece as placed — the user decides when they're happy
+        let pieces = puzzle.assemblyPieces ?? []
+        for piece in pieces {
+            vm.piecePlacedCorrectly(id: piece.id)
+        }
     }
 
     // MARK: - Layout helpers

@@ -39,7 +39,7 @@ public struct PhaseTransitionView: View {
                     icon: "info.circle.fill",
                     iconTint: .orange,
                     title: "Expect a temporary dip",
-                    body: "A drop in accuracy when entering a new phase is normal — it reflects a shift in cognitive strategy, not added difficulty. The system adapts with you."
+                    message: "A drop in accuracy when entering a new phase is normal — it reflects a shift in cognitive strategy, not added difficulty. The system adapts with you."
                 )
                 .opacity(appeared ? 1 : 0)
 
@@ -81,7 +81,7 @@ private struct InfoCard: View {
     let icon: String
     let iconTint: Color
     let title: String
-    let body: String
+    let message: String
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
@@ -91,7 +91,7 @@ private struct InfoCard: View {
                 .frame(width: 32)
             VStack(alignment: .leading, spacing: 4) {
                 Text(title).font(.subheadline.weight(.semibold))
-                Text(body).font(.subheadline).foregroundStyle(.secondary)
+                Text(message).font(.subheadline).foregroundStyle(.secondary)
             }
         }
         .padding(16)

@@ -10,7 +10,7 @@ public struct AssemblyCanvasView: View {
     @Environment(AppEnvironment.self) private var env
 
     /// ID of the currently selected piece (nil = none).
-    @State private var selectedID: UUID? = nil
+    @State private var selectedID: String? = nil
     /// Haptic trigger
     @State private var selectionTick = 0
 
@@ -93,7 +93,7 @@ public struct AssemblyCanvasView: View {
         .foregroundStyle(.secondary)
     }
 
-    private func selectPiece(_ id: UUID) {
+    private func selectPiece(_ id: String) {
         if selectedID == id {
             selectedID = nil
         } else {
